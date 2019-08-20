@@ -1,5 +1,6 @@
 package io.pivotal.minotaur.productionDeploys.web;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,6 +17,7 @@ public class ProductionDaysController {
         this.clock = clock;
     }
 
+    @CrossOrigin
     @GetMapping("/daysSinceLastProductionDeploy")
     public Map<String, Long> daysSinceLastProductionDeploy() {
         LocalDateTime lastDeploy = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC);
