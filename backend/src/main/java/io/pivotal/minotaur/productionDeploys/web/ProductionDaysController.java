@@ -19,8 +19,10 @@ public class ProductionDaysController {
 
     @CrossOrigin
     @GetMapping("/daysSinceLastProductionDeploy")
-    public Map<String, Long> daysSinceLastProductionDeploy() {
-        LocalDateTime lastDeploy = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC);
+    public Map<String, Long> getDaysSinceLastProductionDeploy() {
+//        LocalDateTime lastDeploy = LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneOffset.UTC);
+        LocalDateTime lastDeploy = LocalDateTime.ofInstant(clock.instant(), ZoneOffset.UTC);
+
         LocalDateTime now = LocalDateTime.ofInstant(clock.instant(), ZoneOffset.UTC);
         long daysBetween = Duration.between(lastDeploy, now).toDays();
         HashMap<String, Long> map = new HashMap<>();

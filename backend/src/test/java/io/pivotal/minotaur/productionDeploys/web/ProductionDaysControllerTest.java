@@ -29,7 +29,7 @@ public class ProductionDaysControllerTest {
     private Clock clock;
 
     @Test
-    public void daysSinceLastProductionDeploy() throws Exception {
+    public void getDaysSinceLastProductionDeploy_returnsTheDaysSinceLastProductionDeploy() throws Exception {
         LocalDateTime _1970Jan1 = LocalDateTime.of(1970, 1, 1, 23, 59, 59, 999_999_999);
 
         when(clock.instant()).thenReturn(_1970Jan1.toInstant(ZoneOffset.UTC));
@@ -40,5 +40,10 @@ public class ProductionDaysControllerTest {
         when(clock.instant()).thenReturn(_1970Jan3.toInstant(ZoneOffset.UTC));
         mockMvc.perform(get("/daysSinceLastProductionDeploy")).andExpect(status().isOk())
                 .andExpect(content().json("{\"days\":  2}"));
+    }
+
+    @Test
+    public void updateDaysSinceLastProductionDeploy_updatesTheDaysSinceLastProductionDeploy() {
+
     }
 }
