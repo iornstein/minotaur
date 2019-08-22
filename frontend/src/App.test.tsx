@@ -8,6 +8,7 @@ import configureStore from "./store";
 import {every} from "./services/Timing";
 import {pollServer} from "./store/actions";
 import DaysSinceLastProductionDeployPoller from "./components/DaysSinceLastProductionDeployPoller";
+import ProductionDeployReporter from "./components/ProductionDeployReporter";
 
 jest.mock("./services/Timing");
 
@@ -28,6 +29,11 @@ describe('Application', function () {
     it('should render the DaysSinceProduction', function () {
         const subject = shallow(<App pollServer={jest.fn()}/>);
         expect(subject.find(DaysSinceProduction).exists()).toBeTruthy();
+    });
+
+    it('should render the production deploy reporter', function () {
+        const subject = shallow(<App pollServer={jest.fn()}/>);
+        expect(subject.find(ProductionDeployReporter).exists()).toBeTruthy();
     });
 
     it('should add the DaysSinceLastProductionPoller to the page', function () {

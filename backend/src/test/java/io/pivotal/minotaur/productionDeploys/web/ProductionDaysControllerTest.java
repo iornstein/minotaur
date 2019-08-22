@@ -1,5 +1,6 @@
 package io.pivotal.minotaur.productionDeploys.web;
 
+import io.pivotal.minotaur.utils.Randomly;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +13,10 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -28,17 +31,39 @@ public class ProductionDaysControllerTest {
     @MockBean
     private Clock clock;
 
-    @Test
-    public void daysSinceLastProductionDeploy() throws Exception {
-        LocalDateTime _1970Jan1 = LocalDateTime.of(1970, 1, 1, 23, 59, 59, 999_999_999);
+    @MockBean
+    private LastProductionDeployService lastProductionDeployService;
 
-        when(clock.instant()).thenReturn(_1970Jan1.toInstant(ZoneOffset.UTC));
+    @Test
+    public void getDaysSinceLastProductionDeploy_returnsTheDaysSinceLastProductionDeploy() throws Exception {
+        LocalDateTime endOf1970Jan1 = LocalDateTime.of(1970, 1, 1, 23, 59, 59, 999_999_999);
+        LocalDateTime beginningOf1970Jan1 = LocalDateTime.of(1970, 1, 1, 0, 0, 0, 0);
+        when(lastProductionDeployService.timeOfLastProductionDeploy()).thenReturn(beginningOf1970Jan1);
+
+        when(clock.instant()).thenReturn(endOf1970Jan1.toInstant(ZoneOffset.UTC));
         mockMvc.perform(get("/daysSinceLastProductionDeploy")).andExpect(status().isOk())
                 .andExpect(content().json("{\"days\":  0}"));
 
-        LocalDateTime _1970Jan3 = _1970Jan1.plusNanos(1).plusDays(1);
+        LocalDateTime _1970Jan3 = endOf1970Jan1.plusNanos(1).plusDays(1);
         when(clock.instant()).thenReturn(_1970Jan3.toInstant(ZoneOffset.UTC));
         mockMvc.perform(get("/daysSinceLastProductionDeploy")).andExpect(status().isOk())
                 .andExpect(content().json("{\"days\":  2}"));
+    }
+
+    @Test
+    public void getDaysSinceLastProductionDeploy_returnsNullIfThereHasNotBeenAProductionDeployYet() throws Exception {
+        when(lastProductionDeployService.timeOfLastProductionDeploy()).thenReturn(null);
+        mockMvc.perform(get("/daysSinceLastProductionDeploy")).andExpect(status().isOk())
+                .andExpect(content().json("{\"days\":  null}"));
+    }
+
+    @Test
+    public void updateDaysSinceLastProductionDeploy_updatesTheDaysSinceLastProductionDeploy() throws Exception {
+        LocalDateTime now = Randomly.provideALocalDateTime();
+        when(clock.instant()).thenReturn(now.toInstant(ZoneOffset.UTC));
+
+        mockMvc.perform(put("/daysSinceLastProductionDeploy")).andExpect(status().isOk());
+
+        verify(lastProductionDeployService).reportADeployToProduction(now);
     }
 }

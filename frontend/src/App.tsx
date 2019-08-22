@@ -5,6 +5,7 @@ import {every} from "./services/Timing";
 import {ApplicationAction, pollServer} from "./store/actions";
 import DaysSinceLastProductionDeployPoller from "./components/DaysSinceLastProductionDeployPoller";
 import {connect} from "react-redux";
+import ProductionDeployReporter from "./components/ProductionDeployReporter";
 
 export type Props = {
     pollServer: () => void;
@@ -19,6 +20,7 @@ export class App extends React.Component<Props, {}> {
         return (
             <div className="minotaur">
                 <DaysSinceLastProductionDeployPoller/>
+                <ProductionDeployReporter/>
                 <DaysSinceProduction/>
             </div>
         );

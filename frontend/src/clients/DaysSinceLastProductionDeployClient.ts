@@ -6,3 +6,6 @@ export type DaysSinceLastProductionDeployResponse = {
 
 export const requestDaysSinceLastProductionDeploy: () => Promise<AxiosResponse<DaysSinceLastProductionDeployResponse>> = () =>
     axios.get("http://localhost:8080/daysSinceLastProductionDeploy");
+
+export const notifyThatAProductionDeployHappened: () => Promise<AxiosResponse<{}>> = () =>
+    axios.put("http://localhost:8080/daysSinceLastProductionDeploy");

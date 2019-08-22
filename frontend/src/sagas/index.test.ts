@@ -1,14 +1,14 @@
-import sagas, {fetchDaysSinceLastProductionDeploy} from "./index";
+import sagas, {fetchDaysSinceLastProductionDeploy, updateLastProductionDeploy} from "./index";
 
 import {
-    DaysSinceLastProductionDeployResponse,
+    DaysSinceLastProductionDeployResponse, notifyThatAProductionDeployHappened,
     requestDaysSinceLastProductionDeploy
 } from "../clients/DaysSinceLastProductionDeployClient";
 import {AxiosResponse} from "axios";
-import {ForkEffectDescriptor, SimpleEffect, takeEvery} from "@redux-saga/core/effects";
+import {call, takeEvery} from "@redux-saga/core/effects";
 import {
     applicationError,
-    receiveDaysSinceLastProductionDeploy,
+    receiveDaysSinceLastProductionDeploy, REPORT_A_PRODUCTION_DEPLOY_ACTION_TYPE,
     REQUEST_DAYS_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE,
     requestDaysSinceLastProductionDeployAction,
     UPDATE_STATUS_FOR_DAYS_SINCE_LAST_PRODUCTION_DEPLOY_REQUEST_ACTION,
@@ -20,30 +20,36 @@ import {NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET, RequestStatus} from "../store/r
 
 jest.mock("../clients/DaysSinceLastProductionDeployClient");
 const mockedRequestDaysSinceLastProductionDeploy: jest.MockInstance<Promise<AxiosResponse<DaysSinceLastProductionDeployResponse>>, any[]> = requestDaysSinceLastProductionDeploy as any;
+const mockedNotifyThatAProductionDeployHappened: jest.MockInstance<Promise<AxiosResponse<DaysSinceLastProductionDeployResponse>>, any[]> = notifyThatAProductionDeployHappened as any;
 
 describe("sagas", function () {
     describe("listening to actions", () => {
         it('should fetch the days since the last production deploy when it receives the appropriate action', function () {
-            const sagasGenerator: IterableIterator<SimpleEffect<"FORK", ForkEffectDescriptor>> = sagas();
+            const sagasGenerator = sagas();
             const actual = sagasGenerator.next();
-            expect(actual.value).toEqual(takeEvery(REQUEST_DAYS_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE, fetchDaysSinceLastProductionDeploy));
+            expect(actual.value.payload).toContainEqual(takeEvery(REQUEST_DAYS_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE, fetchDaysSinceLastProductionDeploy));
+        });
+
+        it('should report a production deploy when it receives the appropriate action', function () {
+            const sagasGenerator = sagas();
+            const actual = sagasGenerator.next();
+            expect(actual.value.payload).toContainEqual(takeEvery(REPORT_A_PRODUCTION_DEPLOY_ACTION_TYPE, updateLastProductionDeploy));
         });
     });
 
     const promiseResolvingTo200ResponseWith = <T>(data: T) => {
-        const response : AxiosResponse<T> = {
+        const response: AxiosResponse<T> = {
             data: data,
             status: 200,
             statusText: "",
             headers: null,
             config: {},
         };
-        return Promise.resolve<AxiosResponse<T>> (response)
+        return Promise.resolve<AxiosResponse<T>>(response)
     };
+    const anyAction = requestDaysSinceLastProductionDeployAction();
 
-    describe("fetchDaysSinceLastProductionDeploy",  () => {
-        const anyAction = requestDaysSinceLastProductionDeployAction();
-
+    describe("fetchDaysSinceLastProductionDeploy", () => {
         it('should use the client to request the days since the last production deploy', async function () {
             await runSaga({dispatch: jest.fn()}, fetchDaysSinceLastProductionDeploy, anyAction);
 
@@ -107,6 +113,31 @@ describe("sagas", function () {
                 await runSaga({dispatch: mockDispatcher}, fetchDaysSinceLastProductionDeploy, anyAction);
 
                 expect(mockDispatcher).toHaveBeenCalledWith(updateStatusForDaysSinceLastProductionDeployRequest(RequestStatus.NOT_IN_FLIGHT));
+            });
+        });
+    });
+
+    describe("updateLastProductionDeploy", () => {
+        it('should use the client to put the new most recent production deploy', async function () {
+            await runSaga({dispatch: jest.fn()}, updateLastProductionDeploy, anyAction);
+
+            expect(mockedNotifyThatAProductionDeployHappened).toHaveBeenCalled();
+        });
+
+        it('should fetchDaysSinceLastProductionDeploy after a successful update', function () {
+            const generator = updateLastProductionDeploy(anyAction);
+            expect(generator.next().value).toEqual(call(notifyThatAProductionDeployHappened));
+            expect(generator.next().value).toEqual(call(fetchDaysSinceLastProductionDeploy, anyAction));
+        });
+
+        describe('when there is an error', function () {
+            it('should dispatch the error', async function () {
+                const reason = aString();
+                mockedNotifyThatAProductionDeployHappened.mockReturnValue(Promise.reject(reason));
+                const mockDispatcher = jest.fn();
+                await runSaga({dispatch: mockDispatcher}, updateLastProductionDeploy, anyAction);
+
+                expect(mockDispatcher).toHaveBeenCalledWith(applicationError(reason, "updateLastProductionDeploy"));
             });
         });
     });

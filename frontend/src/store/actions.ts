@@ -58,9 +58,20 @@ export const updateStatusForDaysSinceLastProductionDeployRequest = (status: Requ
     }
 };
 
+export const REPORT_A_PRODUCTION_DEPLOY_ACTION_TYPE = "REPORT_A_PRODUCTION_DEPLOY_ACTION";
+export type ReportAProductionDeployAction = {
+    type: typeof REPORT_A_PRODUCTION_DEPLOY_ACTION_TYPE
+}
+export const reportAProductionDeploy = () : ReportAProductionDeployAction => {
+    return {
+        type: REPORT_A_PRODUCTION_DEPLOY_ACTION_TYPE
+    }
+};
+
 export type ApplicationAction =
     PollServerAction
     | ReceiveDaysSinceLastProductionDeployAction
     | RequestDaysSinceLastProductionDeployAction
     | UpdateStatusDaysSinceLastProductionDeployRequestAction
+    | ReportAProductionDeployAction
     | ApplicationErrorAction;

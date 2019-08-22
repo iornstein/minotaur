@@ -1,13 +1,16 @@
-import {call, put, takeEvery} from 'redux-saga/effects'
+import {call, put, takeEvery, all} from 'redux-saga/effects'
 import {
     ApplicationAction,
     applicationError,
-    receiveDaysSinceLastProductionDeploy,
+    receiveDaysSinceLastProductionDeploy, REPORT_A_PRODUCTION_DEPLOY_ACTION_TYPE,
     REQUEST_DAYS_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE,
     updateStatusForDaysSinceLastProductionDeployRequest
 } from "../store/actions";
 
-import {requestDaysSinceLastProductionDeploy} from "../clients/DaysSinceLastProductionDeployClient";
+import {
+    notifyThatAProductionDeployHappened,
+    requestDaysSinceLastProductionDeploy
+} from "../clients/DaysSinceLastProductionDeployClient";
 import {NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET, RequestStatus} from "../store/reducer";
 
 export function* fetchDaysSinceLastProductionDeploy(ignored: ApplicationAction) {
@@ -22,8 +25,20 @@ export function* fetchDaysSinceLastProductionDeploy(ignored: ApplicationAction) 
     }
 }
 
+export function* updateLastProductionDeploy(ignored: ApplicationAction) {
+    try {
+        yield call(notifyThatAProductionDeployHappened);
+        yield call(fetchDaysSinceLastProductionDeploy, ignored);
+    } catch (e) {
+        yield put(applicationError(e, "updateLastProductionDeploy"));
+    }
+}
+
 function* saga() {
-    yield takeEvery(REQUEST_DAYS_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE, fetchDaysSinceLastProductionDeploy);
+    yield all([
+        takeEvery(REQUEST_DAYS_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE, fetchDaysSinceLastProductionDeploy),
+        takeEvery(REPORT_A_PRODUCTION_DEPLOY_ACTION_TYPE, updateLastProductionDeploy)
+    ]);
 }
 
 export default saga;
