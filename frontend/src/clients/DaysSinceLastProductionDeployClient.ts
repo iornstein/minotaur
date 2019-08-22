@@ -1,7 +1,7 @@
 import axios, {AxiosResponse} from "axios";
 
 export type DaysSinceLastProductionDeployResponse = {
-    days: number
+    days: number | null
 }
 
 export const requestDaysSinceLastProductionDeploy: () => Promise<AxiosResponse<DaysSinceLastProductionDeployResponse>> = () =>

@@ -3,6 +3,7 @@ import {
     ApplicationState,
     DaysSinceLastProductionDeployType,
     HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET,
+    NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET,
 } from "../store/reducer";
 import {connect} from "react-redux";
 
@@ -17,7 +18,7 @@ export class DaysSinceProduction extends React.Component<DaysSinceProductionProp
         if (days === HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET) {
             return <></>
         }
-        if (days === null) {
+        if (days === NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET) {
             return <span className="days-since-production">
             There has not yet been a deploy to production recorded
         </span>

@@ -1,4 +1,4 @@
-import {RequestStatus} from "./reducer";
+import {NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET, RequestStatus} from "./reducer";
 
 export const REQUEST_DAYS_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE = "REQUEST_DAYS_TO_PRODUCTION";
 export type RequestDaysSinceLastProductionDeployAction = {
@@ -13,9 +13,9 @@ export const requestDaysSinceLastProductionDeployAction = (): RequestDaysSinceLa
 export const RECEIVE_DAYS_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE = "RECEIVE_DAYS_SINCE_LAST_PRODUCTION_DEPLOY";
 export type ReceiveDaysSinceLastProductionDeployAction = {
     type: typeof RECEIVE_DAYS_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE;
-    days: number
+    days: number | typeof NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET
 }
-export const receiveDaysSinceLastProductionDeploy = (days: number): ReceiveDaysSinceLastProductionDeployAction => {
+export const receiveDaysSinceLastProductionDeploy = (days: number | typeof NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET): ReceiveDaysSinceLastProductionDeployAction => {
     return {
         type: RECEIVE_DAYS_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE,
         days

@@ -8,12 +8,13 @@ import {
 } from "../store/actions";
 
 import {requestDaysSinceLastProductionDeploy} from "../clients/DaysSinceLastProductionDeployClient";
-import {RequestStatus} from "../store/reducer";
+import {NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET, RequestStatus} from "../store/reducer";
 
 export function* fetchDaysSinceLastProductionDeploy(ignored: ApplicationAction) {
     try {
         const response = yield call(requestDaysSinceLastProductionDeploy);
-        yield put(receiveDaysSinceLastProductionDeploy(response.data.days));
+        const days = response.data.days;
+        yield put(receiveDaysSinceLastProductionDeploy(days === null ? NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET : days));
     } catch (e) {
         yield put(applicationError(e, "fetchDaysSinceLastProductionDeploy"));
     } finally {

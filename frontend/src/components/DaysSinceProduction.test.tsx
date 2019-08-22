@@ -3,7 +3,7 @@ import {shallow, ShallowWrapper} from "enzyme";
 import {DaysSinceProduction, DaysSinceProductionProps, mapStateToProps} from "./DaysSinceProduction";
 import {aNonNegativeNumber, aPositiveNumber} from "../utils/testGenerators/generatePrimitives.test";
 import {aState} from "../utils/testGenerators/generateDomain.test";
-import {HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET} from "../store/reducer";
+import {HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET, NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET} from "../store/reducer";
 
 describe("DaysSinceProduction", function () {
     describe('component', function () {
@@ -45,7 +45,7 @@ describe("DaysSinceProduction", function () {
 
         describe("when the server has responded that there has not been a deploy to production", function () {
             it('should display a message that indicates that', function () {
-                subject.setProps({days: null});
+                subject.setProps({days: NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET});
                 expect(subject.text()).toEqual("There has not yet been a deploy to production recorded");
             });
         });
