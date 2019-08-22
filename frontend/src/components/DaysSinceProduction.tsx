@@ -1,18 +1,12 @@
-import React, {Dispatch} from 'react';
+import React from 'react';
 import {ApplicationState} from "../store/reducer";
 import {connect} from "react-redux";
-import {ApplicationAction, requestDaysSinceLastProductionDeployAction} from "../store/actions";
 
 export type DaysSinceProductionProps = {
     days: number | null;
-    getDaysSinceLastProductionDeploy: () => void;
 };
 
 export class DaysSinceProduction extends React.Component<DaysSinceProductionProps, {}> {
-
-    componentDidMount(): void {
-        this.props.getDaysSinceLastProductionDeploy();
-    }
 
     render() {
         const days = this.props.days;
@@ -35,12 +29,4 @@ export const mapStateToProps = (state: ApplicationState) => {
     }
 };
 
-export const mapDispatchToProps = (dispatch: Dispatch<ApplicationAction>) => {
-    return {
-        getDaysSinceLastProductionDeploy: () => {
-            dispatch(requestDaysSinceLastProductionDeployAction());
-        }
-    }
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(DaysSinceProduction);
+export default connect(mapStateToProps, {})(DaysSinceProduction);

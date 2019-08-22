@@ -3,29 +3,18 @@ import {shallow, ShallowWrapper} from "enzyme";
 import {
     DaysSinceProduction,
     DaysSinceProductionProps,
-    mapDispatchToProps,
     mapStateToProps
 } from "./DaysSinceProduction";
 import {aNonNegativeNumber, aPositiveNumber} from "../utils/testGenerators/generatePrimitives.test";
-import {requestDaysSinceLastProductionDeployAction} from "../store/actions";
+import {aState} from "../utils/testGenerators/generateDomain.test";
 
 describe("DaysSinceProduction", function () {
     describe('component', function () {
         let subject: ShallowWrapper<DaysSinceProductionProps>;
 
         beforeEach(() => {
-            subject = shallow(<DaysSinceProduction days={aNonNegativeNumber()} getDaysSinceLastProductionDeploy={jest.fn()}/>);
+            subject = shallow(<DaysSinceProduction days={aNonNegativeNumber()}/>);
 
-        });
-
-        it('should request the days since production when it loads', function () {
-            const mockDaysSinceLastProductionDeploy = jest.fn();
-            const subject = shallow(<DaysSinceProduction days={aNonNegativeNumber()}
-                                                         getDaysSinceLastProductionDeploy={mockDaysSinceLastProductionDeploy}/>);
-
-            subject.update();
-
-            expect(mockDaysSinceLastProductionDeploy).toHaveBeenCalled();
         });
 
         describe('when it has loaded the days since production', function () {
@@ -61,15 +50,7 @@ describe("DaysSinceProduction", function () {
     describe("mapStateToProps", () => {
         it('should read the days since production', function () {
             const days = aPositiveNumber();
-            expect(mapStateToProps({daysSinceProduction: days}).days).toEqual(days);
-        });
-    });
-
-    describe("mapDispatchToProps", () => {
-        it('should allow the component to load the days since last production deploy', function () {
-            const mockDispatch = jest.fn();
-            mapDispatchToProps(mockDispatch).getDaysSinceLastProductionDeploy();
-            expect(mockDispatch).toHaveBeenCalledWith(requestDaysSinceLastProductionDeployAction());
+            expect(mapStateToProps({...aState(), daysSinceProduction: days}).days).toEqual(days);
         });
     });
 });

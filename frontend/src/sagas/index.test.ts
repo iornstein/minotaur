@@ -10,10 +10,13 @@ import {
     applicationError,
     receiveDaysSinceLastProductionDeploy,
     REQUEST_DAYS_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE,
-    requestDaysSinceLastProductionDeployAction
+    requestDaysSinceLastProductionDeployAction,
+    UPDATE_STATUS_FOR_DAYS_SINCE_LAST_PRODUCTION_DEPLOY_REQUEST_ACTION,
+    updateStatusForDaysSinceLastProductionDeployRequest
 } from "../store/actions";
 import {runSaga} from "redux-saga";
 import {aNonNegativeNumber, aString} from "../utils/testGenerators/generatePrimitives.test";
+import {RequestStatus} from "../store/reducer";
 
 jest.mock("../clients/DaysSinceLastProductionDeployClient");
 const mockedRequestDaysSinceLastProductionDeploy: jest.MockInstance<Promise<AxiosResponse<DaysSinceLastProductionDeployResponse>>, any[]> = requestDaysSinceLastProductionDeploy as any;
@@ -56,6 +59,20 @@ describe("sagas", function () {
             expect(mockDispatcher).toHaveBeenCalledWith(receiveDaysSinceLastProductionDeploy(days));
         });
 
+        it('should dispatch that the request is no longer in flight AFTER the response is received', async function () {
+            mockedRequestDaysSinceLastProductionDeploy.mockReturnValue(Promise.resolve<AxiosResponse<DaysSinceLastProductionDeployResponse>>(promiseResolvingTo200ResponseWith({days: aNonNegativeNumber()})));
+
+            const mockDispatcher = jest.fn();
+            await runSaga({dispatch: mockDispatcher}, fetchDaysSinceLastProductionDeploy, anyAction);
+
+            const dispatchCalls = mockDispatcher.mock.calls;
+
+            expect(mockDispatcher).toHaveBeenCalledWith(updateStatusForDaysSinceLastProductionDeployRequest(RequestStatus.NOT_IN_FLIGHT));
+            const indexOfUpdateRequestStatus = dispatchCalls.findIndex(call => call[0].type === UPDATE_STATUS_FOR_DAYS_SINCE_LAST_PRODUCTION_DEPLOY_REQUEST_ACTION);
+            const indexOfReceiveDaysSinceLastProductionDeploy = dispatchCalls.findIndex(call => call[0].type === receiveDaysSinceLastProductionDeploy(0).type);
+            expect(indexOfReceiveDaysSinceLastProductionDeploy).toBeLessThan(indexOfUpdateRequestStatus);
+        });
+
         describe('when there is an error', function () {
             it('should dispatch the error', async function () {
                 const reason = aString();
@@ -64,6 +81,14 @@ describe("sagas", function () {
                 await runSaga({dispatch: mockDispatcher}, fetchDaysSinceLastProductionDeploy, anyAction);
 
                 expect(mockDispatcher).toHaveBeenCalledWith(applicationError(reason, "fetchDaysSinceLastProductionDeploy"));
+            });
+
+            it('should dispatch that the request is no longer in flight', async function () {
+                mockedRequestDaysSinceLastProductionDeploy.mockReturnValue(Promise.reject(aString()));
+                const mockDispatcher = jest.fn();
+                await runSaga({dispatch: mockDispatcher}, fetchDaysSinceLastProductionDeploy, anyAction);
+
+                expect(mockDispatcher).toHaveBeenCalledWith(updateStatusForDaysSinceLastProductionDeployRequest(RequestStatus.NOT_IN_FLIGHT));
             });
         });
     });
