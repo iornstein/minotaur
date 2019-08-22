@@ -1,7 +1,10 @@
 import {ApplicationAction} from "./actions";
 
+export const HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET = "HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET";
+export type DaysSinceLastProductionDeployType = number | null | typeof HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET;
+
 export type ApplicationState = {
-    daysSinceProduction: number | null;
+    daysSinceProduction: DaysSinceLastProductionDeployType;
     daysSinceLastProductionRequestStatus: RequestStatus;
 }
 
@@ -12,7 +15,7 @@ export enum RequestStatus {
 }
 
 const initialState: ApplicationState = {
-    daysSinceProduction: null,
+    daysSinceProduction: HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET,
     daysSinceLastProductionRequestStatus: RequestStatus.NOT_IN_FLIGHT,
 };
 

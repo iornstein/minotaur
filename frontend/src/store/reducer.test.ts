@@ -1,4 +1,4 @@
-import {reducer, RequestStatus} from "./reducer";
+import {HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET, reducer, RequestStatus} from "./reducer";
 import {aNonNegativeNumber, randomChoiceFrom} from "../utils/testGenerators/generatePrimitives.test";
 import {aState} from "../utils/testGenerators/generateDomain.test";
 import {
@@ -12,7 +12,7 @@ describe("reducer", function () {
     it('should default to the initial state', function () {
         const initialState = reducer(undefined, {type: REQUEST_DAYS_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE});
         expect(initialState).toEqual({
-            daysSinceProduction: null,
+            daysSinceProduction: HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET,
             daysSinceLastProductionRequestStatus: RequestStatus.NOT_IN_FLIGHT
         })
     });
