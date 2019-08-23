@@ -20,8 +20,8 @@ export class App extends React.Component<Props, {}> {
         return (
             <div className="minotaur">
                 <DaysSinceLastProductionDeployPoller/>
-                <ProductionDeployReporter/>
                 <DaysSinceProduction/>
+                <ProductionDeployReporter/>
             </div>
         );
     }

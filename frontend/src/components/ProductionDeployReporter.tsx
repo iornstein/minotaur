@@ -8,7 +8,7 @@ type Props = {
 
 export class ProductionDeployReporter extends React.Component<Props, {}> {
     render() {
-        return <button onClick={this.props.reportAProductionDeploy}>Report a production deploy</button>
+        return <div><button onClick={this.props.reportAProductionDeploy}>Report a production deploy</button></div>
     }
 }
 

@@ -19,14 +19,14 @@ export class DaysSinceProduction extends React.Component<DaysSinceProductionProp
             return <></>
         }
         if (days === NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET) {
-            return <span className="days-since-production">
+            return <div>
             There has not yet been a deploy to production recorded
-        </span>
+        </div>
         }
 
-        return <span className="days-since-production">
-            It has been {DaysSinceProduction.textFor(days)} since your last production deploy
-        </span>
+        return <div>
+            It has been <span className="days">{DaysSinceProduction.textFor(days)}</span> since your last production deploy.
+        </div>
     }
 
     static textFor(days: number) {
