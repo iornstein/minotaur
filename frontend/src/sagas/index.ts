@@ -2,33 +2,33 @@ import {call, put, takeEvery, all} from 'redux-saga/effects'
 import {
     ApplicationAction,
     applicationError,
-    receiveDaysSinceLastProductionDeploy, REPORT_A_PRODUCTION_DEPLOY_ACTION_TYPE,
-    REQUEST_DAYS_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE,
-    updateStatusForDaysSinceLastProductionDeployRequest
+    receiveTimeSinceLastProductionDeploy, REPORT_A_PRODUCTION_DEPLOY_ACTION_TYPE,
+    REQUEST_TIME_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE,
+    updateStatusForTimeSinceProductionDeployRequest
 } from "../store/actions";
 
 import {
     notifyThatAProductionDeployHappened,
-    requestDaysSinceLastProductionDeploy
-} from "../clients/DaysSinceLastProductionDeployClient";
+    requestTimeSinceProductionDeploy
+} from "../clients/TimeSinceProductionDeployClient";
 import {NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET, RequestStatus} from "../store/reducer";
 
-export function* fetchDaysSinceLastProductionDeploy(ignored: ApplicationAction) {
+export function* fetchTimeSinceProductionDeploy(ignored: ApplicationAction) {
     try {
-        const response = yield call(requestDaysSinceLastProductionDeploy);
+        const response = yield call(requestTimeSinceProductionDeploy);
         const days = response.data.days;
-        yield put(receiveDaysSinceLastProductionDeploy(days === null ? NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET : days));
+        yield put(receiveTimeSinceLastProductionDeploy(days === null ? NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET : days));
     } catch (e) {
-        yield put(applicationError(e, "fetchDaysSinceLastProductionDeploy"));
+        yield put(applicationError(e, "fetchTimeSinceProductionDeploy"));
     } finally {
-        yield put(updateStatusForDaysSinceLastProductionDeployRequest(RequestStatus.NOT_IN_FLIGHT));
+        yield put(updateStatusForTimeSinceProductionDeployRequest(RequestStatus.NOT_IN_FLIGHT));
     }
 }
 
 export function* updateLastProductionDeploy(ignored: ApplicationAction) {
     try {
         yield call(notifyThatAProductionDeployHappened);
-        yield call(fetchDaysSinceLastProductionDeploy, ignored);
+        yield call(fetchTimeSinceProductionDeploy, ignored);
     } catch (e) {
         yield put(applicationError(e, "updateLastProductionDeploy"));
     }
@@ -36,7 +36,7 @@ export function* updateLastProductionDeploy(ignored: ApplicationAction) {
 
 function* saga() {
     yield all([
-        takeEvery(REQUEST_DAYS_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE, fetchDaysSinceLastProductionDeploy),
+        takeEvery(REQUEST_TIME_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE, fetchTimeSinceProductionDeploy),
         takeEvery(REPORT_A_PRODUCTION_DEPLOY_ACTION_TYPE, updateLastProductionDeploy)
     ]);
 }

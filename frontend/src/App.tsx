@@ -1,9 +1,9 @@
 import React, {Dispatch} from 'react';
 import './App.css';
-import DaysSinceProduction from "./components/DaysSinceProduction";
+import TimeSinceProduction from "./components/TimeSinceProduction";
 import {every} from "./services/Timing";
 import {ApplicationAction, pollServer} from "./store/actions";
-import DaysSinceLastProductionDeployPoller from "./components/DaysSinceLastProductionDeployPoller";
+import TimeSinceLastProductionDeployPoller from "./components/TimeSinceProductionDeployPoller";
 import {connect} from "react-redux";
 import ProductionDeployReporter from "./components/ProductionDeployReporter";
 
@@ -19,8 +19,8 @@ export class App extends React.Component<Props, {}> {
     render() {
         return (
             <div className="minotaur">
-                <DaysSinceLastProductionDeployPoller/>
-                <DaysSinceProduction/>
+                <TimeSinceLastProductionDeployPoller/>
+                <TimeSinceProduction/>
                 <ProductionDeployReporter/>
             </div>
         );

@@ -2,11 +2,12 @@ import {ApplicationAction} from "./actions";
 
 export const HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET = "HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET";
 export const NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET = "NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET";
-export type DaysSinceLastProductionDeployType = number | typeof NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET| typeof HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET;
+export type TimeSinceProductionDeployFromServerType = number | typeof NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET| typeof HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET;
+export type TimeSinceProductionDeployType = TimeSinceProductionDeployFromServerType | typeof HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET;
 
 export type ApplicationState = {
-    daysSinceProduction: DaysSinceLastProductionDeployType;
-    daysSinceLastProductionRequestStatus: RequestStatus;
+    timeSinceProduction: TimeSinceProductionDeployType;
+    timeSinceProductionRequestStatus: RequestStatus;
 }
 
 export enum RequestStatus {
@@ -16,22 +17,23 @@ export enum RequestStatus {
 }
 
 const initialState: ApplicationState = {
-    daysSinceProduction: HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET,
-    daysSinceLastProductionRequestStatus: RequestStatus.NOT_IN_FLIGHT,
+    timeSinceProduction: HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET,
+    timeSinceProductionRequestStatus: RequestStatus.NOT_IN_FLIGHT,
 };
 
 export const reducer = (state: ApplicationState = initialState, action: ApplicationAction): ApplicationState => {
     switch (action.type) {
-        case "UPDATE_STATUS_DAYS_SINCE_LAST_PRODUCTION_DEPLOY_REQUEST_ACTION":
-            return {...state, daysSinceLastProductionRequestStatus: action.status};
+        case "UPDATE_STATUS_TIME_SINCE_PRODUCTION_DEPLOY_REQUEST_ACTION":
+            return {...state, timeSinceProductionRequestStatus: action.status};
         case "POLL_SERVER_ACTION_TYPE":
             return {
                 ...state,
-                daysSinceLastProductionRequestStatus: state.daysSinceLastProductionRequestStatus === RequestStatus.IN_FLIGHT ? RequestStatus.IN_FLIGHT : RequestStatus.SHOULD_BE_MADE
+                timeSinceProductionRequestStatus: state.timeSinceProductionRequestStatus === RequestStatus.IN_FLIGHT ? RequestStatus.IN_FLIGHT : RequestStatus.SHOULD_BE_MADE
             };
-        case "RECEIVE_DAYS_SINCE_LAST_PRODUCTION_DEPLOY":
-            return {...state, daysSinceProduction: action.days};
-        case "REQUEST_DAYS_TO_PRODUCTION":
+        case "RECEIVE_TIME_SINCE_PRODUCTION_DEPLOY":
+            return {...state, timeSinceProduction: action.time};
+        case "REQUEST_TIME_SINCE_PRODUCTION_DEPLOY":
+        case "REPORT_A_PRODUCTION_DEPLOY_ACTION":
         case "APPLICATION_ERROR_ACTION_TYPE":
         default:
             return state;

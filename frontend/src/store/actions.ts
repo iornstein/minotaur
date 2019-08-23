@@ -1,24 +1,27 @@
-import {NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET, RequestStatus} from "./reducer";
+import {
+    RequestStatus,
+    TimeSinceProductionDeployFromServerType
+} from "./reducer";
 
-export const REQUEST_DAYS_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE = "REQUEST_DAYS_TO_PRODUCTION";
-export type RequestDaysSinceLastProductionDeployAction = {
-    type: typeof REQUEST_DAYS_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE;
+export const REQUEST_TIME_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE = "REQUEST_TIME_SINCE_PRODUCTION_DEPLOY";
+export type RequestTimeSinceProductionDeployAction = {
+    type: typeof REQUEST_TIME_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE;
 }
-export const requestDaysSinceLastProductionDeployAction = (): RequestDaysSinceLastProductionDeployAction => {
+export const requestTimeSinceProductionDeployAction = (): RequestTimeSinceProductionDeployAction => {
     return {
-        type: REQUEST_DAYS_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE
+        type: REQUEST_TIME_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE
     }
 };
 
-export const RECEIVE_DAYS_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE = "RECEIVE_DAYS_SINCE_LAST_PRODUCTION_DEPLOY";
-export type ReceiveDaysSinceLastProductionDeployAction = {
-    type: typeof RECEIVE_DAYS_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE;
-    days: number | typeof NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET
+export const RECEIVE_TIME_SINCE_PRODUCTION_DEPLOY_ACTION_TYPE = "RECEIVE_TIME_SINCE_PRODUCTION_DEPLOY";
+export type ReceiveTimeSinceProductionDeployAction = {
+    type: typeof RECEIVE_TIME_SINCE_PRODUCTION_DEPLOY_ACTION_TYPE;
+    time: TimeSinceProductionDeployFromServerType
 }
-export const receiveDaysSinceLastProductionDeploy = (days: number | typeof NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET): ReceiveDaysSinceLastProductionDeployAction => {
+export const receiveTimeSinceLastProductionDeploy = (time: TimeSinceProductionDeployFromServerType): ReceiveTimeSinceProductionDeployAction => {
     return {
-        type: RECEIVE_DAYS_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE,
-        days
+        type: RECEIVE_TIME_SINCE_PRODUCTION_DEPLOY_ACTION_TYPE,
+        time: time
     };
 };
 
@@ -46,14 +49,14 @@ export const pollServer = (): PollServerAction => {
     }
 };
 
-export const UPDATE_STATUS_FOR_DAYS_SINCE_LAST_PRODUCTION_DEPLOY_REQUEST_ACTION = "UPDATE_STATUS_DAYS_SINCE_LAST_PRODUCTION_DEPLOY_REQUEST_ACTION";
-export type UpdateStatusDaysSinceLastProductionDeployRequestAction = {
-    type: typeof UPDATE_STATUS_FOR_DAYS_SINCE_LAST_PRODUCTION_DEPLOY_REQUEST_ACTION,
+export const UPDATE_STATUS_FOR_TIME_SINCE_PRODUCTION_DEPLOY_REQUEST_ACTION = "UPDATE_STATUS_TIME_SINCE_PRODUCTION_DEPLOY_REQUEST_ACTION";
+export type UpdateStatusTimeSinceProductionDeployRequestAction = {
+    type: typeof UPDATE_STATUS_FOR_TIME_SINCE_PRODUCTION_DEPLOY_REQUEST_ACTION,
     status: RequestStatus
 }
-export const updateStatusForDaysSinceLastProductionDeployRequest = (status: RequestStatus.IN_FLIGHT | RequestStatus.NOT_IN_FLIGHT): UpdateStatusDaysSinceLastProductionDeployRequestAction => {
+export const updateStatusForTimeSinceProductionDeployRequest = (status: RequestStatus.IN_FLIGHT | RequestStatus.NOT_IN_FLIGHT): UpdateStatusTimeSinceProductionDeployRequestAction => {
     return {
-        type: UPDATE_STATUS_FOR_DAYS_SINCE_LAST_PRODUCTION_DEPLOY_REQUEST_ACTION,
+        type: UPDATE_STATUS_FOR_TIME_SINCE_PRODUCTION_DEPLOY_REQUEST_ACTION,
         status
     }
 };
@@ -70,8 +73,8 @@ export const reportAProductionDeploy = () : ReportAProductionDeployAction => {
 
 export type ApplicationAction =
     PollServerAction
-    | ReceiveDaysSinceLastProductionDeployAction
-    | RequestDaysSinceLastProductionDeployAction
-    | UpdateStatusDaysSinceLastProductionDeployRequestAction
+    | ReceiveTimeSinceProductionDeployAction
+    | RequestTimeSinceProductionDeployAction
+    | UpdateStatusTimeSinceProductionDeployRequestAction
     | ReportAProductionDeployAction
     | ApplicationErrorAction;

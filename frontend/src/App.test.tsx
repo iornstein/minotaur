@@ -2,12 +2,12 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {App, mapDispatchToProps} from './App';
 import {shallow} from "enzyme";
-import DaysSinceProduction from "./components/DaysSinceProduction";
+import TimeSinceProduction from "./components/TimeSinceProduction";
 import {Provider} from "react-redux";
 import configureStore from "./store";
 import {every} from "./services/Timing";
 import {pollServer} from "./store/actions";
-import DaysSinceLastProductionDeployPoller from "./components/DaysSinceLastProductionDeployPoller";
+import TimeSinceLastProductionDeployPoller from "./components/TimeSinceProductionDeployPoller";
 import ProductionDeployReporter from "./components/ProductionDeployReporter";
 
 jest.mock("./services/Timing");
@@ -26,9 +26,9 @@ describe('Application', function () {
         ReactDOM.unmountComponentAtNode(div);
     });
 
-    it('should render the DaysSinceProduction', function () {
+    it('should render the TimeSinceProduction', function () {
         const subject = shallow(<App pollServer={jest.fn()}/>);
-        expect(subject.find(DaysSinceProduction).exists()).toBeTruthy();
+        expect(subject.find(TimeSinceProduction).exists()).toBeTruthy();
     });
 
     it('should render the production deploy reporter', function () {
@@ -36,9 +36,9 @@ describe('Application', function () {
         expect(subject.find(ProductionDeployReporter).exists()).toBeTruthy();
     });
 
-    it('should add the DaysSinceLastProductionPoller to the page', function () {
+    it('should add the TimeSinceLastProductionPoller to the page', function () {
         const subject = shallow(<App pollServer={jest.fn()}/>);
-        expect(subject.find(DaysSinceLastProductionDeployPoller).exists()).toBeTruthy();
+        expect(subject.find(TimeSinceLastProductionDeployPoller).exists()).toBeTruthy();
     });
 
     it('should send action to poll the server every 10 minutes', function () {
