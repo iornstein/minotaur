@@ -45,24 +45,24 @@ public class EndToEndTest {
     }
 
     @Test
-    public void shouldCorrectlyReportTheDaysSinceLastProductionDeploy() throws JSONException {
-        assertThatDaysSinceLastProductionDeployIs(null);
+    public void shouldCorrectlyReportTheTimeSinceLastProductionDeploy() throws JSONException {
+        assertThatDaysAndHoursSinceLastProductionDeployIs(null, null);
 
         LocalDateTime currentTime = Randomly.provideALocalDateTime();
 
         when(clock.instant()).thenReturn(currentTime.toInstant(ZoneOffset.UTC));
-        restTemplate.put("http://localhost:" + port + "/daysSinceLastProductionDeploy", null);
-        assertThatDaysSinceLastProductionDeployIs(0);
+        restTemplate.put("http://localhost:" + port + "/reportAProductionDeploy", null);
+        assertThatDaysAndHoursSinceLastProductionDeployIs(0, 0);
 
         when(clock.instant()).thenReturn(currentTime.toInstant(ZoneOffset.UTC).plus(3, ChronoUnit.DAYS));
-        assertThatDaysSinceLastProductionDeployIs(3);
-        restTemplate.put("http://localhost:" + port + "/daysSinceLastProductionDeploy", null);
-        assertThatDaysSinceLastProductionDeployIs(0);
+        assertThatDaysAndHoursSinceLastProductionDeployIs(3, 0);
+        restTemplate.put("http://localhost:" + port + "/reportAProductionDeploy", null);
+        assertThatDaysAndHoursSinceLastProductionDeployIs(0, 0);
     }
 
-    private void assertThatDaysSinceLastProductionDeployIs(Integer expectedDays) throws JSONException {
-        ResponseEntity<String> firstGetResponse = restTemplate.getForEntity("http://localhost:" + port + "/daysSinceLastProductionDeploy", String.class);
+    private void assertThatDaysAndHoursSinceLastProductionDeployIs(Integer expectedDays, Integer expectedHours) throws JSONException {
+        ResponseEntity<String> firstGetResponse = restTemplate.getForEntity("http://localhost:" + port + "/timeSinceLastProductionDeploy", String.class);
         assertThat(firstGetResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
-        JSONAssert.assertEquals(String.format("{\"days\": %d}", expectedDays), firstGetResponse.getBody(), JSONCompareMode.STRICT);
+        JSONAssert.assertEquals(String.format("{\"days\": %d, \"hours\": %d}", expectedDays, expectedHours), firstGetResponse.getBody(), JSONCompareMode.STRICT);
     }
 }

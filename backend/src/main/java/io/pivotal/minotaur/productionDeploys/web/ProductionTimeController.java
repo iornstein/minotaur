@@ -5,39 +5,37 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 @RestController
-public class ProductionDaysController {
+public class ProductionTimeController {
 
     private final Clock clock;
     private LastProductionDeployService lastProductionDeployService;
 
-    public ProductionDaysController(Clock clock, LastProductionDeployService lastProductionDeployService) {
+    public ProductionTimeController(Clock clock, LastProductionDeployService lastProductionDeployService) {
         this.clock = clock;
         this.lastProductionDeployService = lastProductionDeployService;
     }
 
     @CrossOrigin
-    @GetMapping("/daysSinceLastProductionDeploy")
-    public Map<String, Long> getDaysSinceLastProductionDeploy() {
-        HashMap<String, Long> responseBody = new HashMap<>();
+    @GetMapping("/timeSinceLastProductionDeploy")
+    public TimeSinceMostRecentProductionDeploy getTimeSinceProductionDeploy() {
 
         LocalDateTime lastDeploy = lastProductionDeployService.timeOfLastProductionDeploy();
         if (lastDeploy == null) {
-            responseBody.put("days", null);
-            return responseBody;
+            return new TimeSinceMostRecentProductionDeploy(null, null);
         }
 
         long daysBetween = Duration.between(lastDeploy, now()).toDays();
-        responseBody.put("days", daysBetween);
-        return responseBody;
+        return new TimeSinceMostRecentProductionDeploy(daysBetween, 0L);
     }
 
     @CrossOrigin
-    @PutMapping("/daysSinceLastProductionDeploy")
+    @PutMapping("/reportAProductionDeploy")
     public void updateLastProductionDeployTime() {
         lastProductionDeployService.reportADeployToProduction(now());
     }

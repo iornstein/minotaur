@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @WebMvcTest
-public class ProductionDaysControllerTest {
+public class ProductionTimeControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -35,34 +35,34 @@ public class ProductionDaysControllerTest {
     private LastProductionDeployService lastProductionDeployService;
 
     @Test
-    public void getDaysSinceLastProductionDeploy_returnsTheDaysSinceLastProductionDeploy() throws Exception {
+    public void getTimeSinceLastProductionDeploy_returnsTheTimeSinceLastProductionDeploy() throws Exception {
         LocalDateTime endOf1970Jan1 = LocalDateTime.of(1970, 1, 1, 23, 59, 59, 999_999_999);
         LocalDateTime beginningOf1970Jan1 = LocalDateTime.of(1970, 1, 1, 0, 0, 0, 0);
         when(lastProductionDeployService.timeOfLastProductionDeploy()).thenReturn(beginningOf1970Jan1);
 
         when(clock.instant()).thenReturn(endOf1970Jan1.toInstant(ZoneOffset.UTC));
-        mockMvc.perform(get("/daysSinceLastProductionDeploy")).andExpect(status().isOk())
-                .andExpect(content().json("{\"days\":  0}"));
+        mockMvc.perform(get("/timeSinceLastProductionDeploy")).andExpect(status().isOk())
+                .andExpect(content().json("{\"days\":  0, \"hours\": 0}"));
 
         LocalDateTime _1970Jan3 = endOf1970Jan1.plusNanos(1).plusDays(1);
         when(clock.instant()).thenReturn(_1970Jan3.toInstant(ZoneOffset.UTC));
-        mockMvc.perform(get("/daysSinceLastProductionDeploy")).andExpect(status().isOk())
-                .andExpect(content().json("{\"days\":  2}"));
+        mockMvc.perform(get("/timeSinceLastProductionDeploy")).andExpect(status().isOk())
+                .andExpect(content().json("{\"days\":  2, \"hours\": 0}"));
     }
 
     @Test
-    public void getDaysSinceLastProductionDeploy_returnsNullIfThereHasNotBeenAProductionDeployYet() throws Exception {
+    public void getTimeSinceLastProductionDeploy_returnsNullIfThereHasNotBeenAProductionDeployYet() throws Exception {
         when(lastProductionDeployService.timeOfLastProductionDeploy()).thenReturn(null);
-        mockMvc.perform(get("/daysSinceLastProductionDeploy")).andExpect(status().isOk())
-                .andExpect(content().json("{\"days\":  null}"));
+        mockMvc.perform(get("/timeSinceLastProductionDeploy")).andExpect(status().isOk())
+                .andExpect(content().json("{\"days\":  null, \"hours\": null}"));
     }
 
     @Test
-    public void updateDaysSinceLastProductionDeploy_updatesTheDaysSinceLastProductionDeploy() throws Exception {
+    public void reportAProductionDeploy_updatesTheTimeSinceLastProductionDeploy() throws Exception {
         LocalDateTime now = Randomly.provideALocalDateTime();
         when(clock.instant()).thenReturn(now.toInstant(ZoneOffset.UTC));
 
-        mockMvc.perform(put("/daysSinceLastProductionDeploy")).andExpect(status().isOk());
+        mockMvc.perform(put("/reportAProductionDeploy")).andExpect(status().isOk());
 
         verify(lastProductionDeployService).reportADeployToProduction(now);
     }
