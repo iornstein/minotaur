@@ -34,6 +34,7 @@
 # Gradle
 # Exclude Folder List #
 .gradle/
+!gradle-wrapper.jar
 */build/
 
 # INTELLIJ
