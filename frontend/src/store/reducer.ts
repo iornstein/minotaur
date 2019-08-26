@@ -2,11 +2,17 @@ import {ApplicationAction} from "./actions";
 
 export const HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET = "HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET";
 export const NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET = "NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET";
-export type TimeSinceProductionDeployFromServerType = number | typeof NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET| typeof HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET;
-export type TimeSinceProductionDeployType = TimeSinceProductionDeployFromServerType | typeof HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET;
+export type KnownTimeSinceProductionDeployType =
+    { days: number, hasBeenAtLeastADay: true }
+    | { hours: number, hasBeenAtLeastADay: false }
+    | typeof NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET;
+
+export type KnownOrUnknownTimeSinceProductionDeployType =
+    KnownTimeSinceProductionDeployType
+    | typeof HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET;
 
 export type ApplicationState = {
-    timeSinceProduction: TimeSinceProductionDeployType;
+    timeSinceProduction: KnownOrUnknownTimeSinceProductionDeployType;
     timeSinceProductionRequestStatus: RequestStatus;
 }
 

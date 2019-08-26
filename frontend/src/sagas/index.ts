@@ -9,15 +9,35 @@ import {
 
 import {
     notifyThatAProductionDeployHappened,
-    requestTimeSinceProductionDeploy
+    requestTimeSinceProductionDeploy, TimeSinceProductionDeployResponse
 } from "../clients/TimeSinceProductionDeployClient";
-import {NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET, RequestStatus} from "../store/reducer";
+import {
+    NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET,
+    RequestStatus,
+    KnownTimeSinceProductionDeployType
+} from "../store/reducer";
+import {AxiosResponse} from "axios";
+
+const convertToDomainResponse = (time: TimeSinceProductionDeployResponse) : KnownTimeSinceProductionDeployType => {
+    if (time.days === null || time.hours === null) {
+        return NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET;
+    }
+    if (time.days >= 1) {
+        return {
+            days: time.days,
+            hasBeenAtLeastADay: true
+        }
+    }
+    return {
+        hours: time.hours,
+        hasBeenAtLeastADay: false
+    };
+};
 
 export function* fetchTimeSinceProductionDeploy(ignored: ApplicationAction) {
     try {
-        const response = yield call(requestTimeSinceProductionDeploy);
-        const days = response.data.days;
-        yield put(receiveTimeSinceLastProductionDeploy(days === null ? NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET : days));
+        const response: AxiosResponse<TimeSinceProductionDeployResponse> = yield call(requestTimeSinceProductionDeploy);
+        yield put(receiveTimeSinceLastProductionDeploy(convertToDomainResponse(response.data)));
     } catch (e) {
         yield put(applicationError(e, "fetchTimeSinceProductionDeploy"));
     } finally {

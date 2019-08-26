@@ -36,25 +36,11 @@ public class ProductionTimeControllerTest {
 
     @Test
     public void getTimeSinceLastProductionDeploy_returnsTheTimeSinceLastProductionDeploy() throws Exception {
-        LocalDateTime endOf1970Jan1 = LocalDateTime.of(1970, 1, 1, 23, 59, 59, 999_999_999);
-        LocalDateTime beginningOf1970Jan1 = LocalDateTime.of(1970, 1, 1, 0, 0, 0, 0);
-        when(lastProductionDeployService.timeOfLastProductionDeploy()).thenReturn(beginningOf1970Jan1);
-
-        when(clock.instant()).thenReturn(endOf1970Jan1.toInstant(ZoneOffset.UTC));
+        LocalDateTime someTime = Randomly.provideALocalDateTime();
+        when(lastProductionDeployService.timeBetweenMostRecentProductionDeployAnd(someTime)).thenReturn(new TimeSinceMostRecentProductionDeploy(2L, 3L));
+        when(clock.instant()).thenReturn(someTime.toInstant(ZoneOffset.UTC));
         mockMvc.perform(get("/timeSinceLastProductionDeploy")).andExpect(status().isOk())
-                .andExpect(content().json("{\"days\":  0, \"hours\": 0}"));
-
-        LocalDateTime _1970Jan3 = endOf1970Jan1.plusNanos(1).plusDays(1);
-        when(clock.instant()).thenReturn(_1970Jan3.toInstant(ZoneOffset.UTC));
-        mockMvc.perform(get("/timeSinceLastProductionDeploy")).andExpect(status().isOk())
-                .andExpect(content().json("{\"days\":  2, \"hours\": 0}"));
-    }
-
-    @Test
-    public void getTimeSinceLastProductionDeploy_returnsNullIfThereHasNotBeenAProductionDeployYet() throws Exception {
-        when(lastProductionDeployService.timeOfLastProductionDeploy()).thenReturn(null);
-        mockMvc.perform(get("/timeSinceLastProductionDeploy")).andExpect(status().isOk())
-                .andExpect(content().json("{\"days\":  null, \"hours\": null}"));
+                .andExpect(content().json("{\"days\":  2, \"hours\": 3}"));
     }
 
     @Test

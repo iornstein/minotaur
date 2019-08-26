@@ -1,6 +1,6 @@
 import {ApplicationState, HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET, reducer, RequestStatus} from "./reducer";
 import {randomChoiceFrom} from "../utils/testGenerators/generatePrimitives.test";
-import {aState, someTimeSinceProductionFromServer} from "../utils/testGenerators/generateDomain.test";
+import {aState, someKnownTimeSinceProduction} from "../utils/testGenerators/generateDomain.test";
 import {
     pollServer,
     receiveTimeSinceLastProductionDeploy,
@@ -22,14 +22,14 @@ describe("reducer", function () {
 
     describe("when receiving time since most recent production deploy", () => {
         it('should update the time since the last production deploy', function () {
-            const timeSinceProduction = someTimeSinceProductionFromServer();
+            const timeSinceProduction = someKnownTimeSinceProduction();
             const newState = reducer(aState(), receiveTimeSinceLastProductionDeploy(timeSinceProduction));
 
             expect(newState.timeSinceProduction).toEqual(timeSinceProduction);
         });
 
         it('should keep the rest of the state the same', function () {
-            const timeSinceProduction = someTimeSinceProductionFromServer();
+            const timeSinceProduction = someKnownTimeSinceProduction();
             const oldState : ApplicationState = {...aState(), timeSinceProduction};
             const newState = reducer(oldState, receiveTimeSinceLastProductionDeploy(timeSinceProduction));
             expect(newState).toEqual(oldState);

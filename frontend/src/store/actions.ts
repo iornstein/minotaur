@@ -1,6 +1,6 @@
 import {
     RequestStatus,
-    TimeSinceProductionDeployFromServerType
+    KnownTimeSinceProductionDeployType
 } from "./reducer";
 
 export const REQUEST_TIME_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE = "REQUEST_TIME_SINCE_PRODUCTION_DEPLOY";
@@ -16,9 +16,9 @@ export const requestTimeSinceProductionDeployAction = (): RequestTimeSinceProduc
 export const RECEIVE_TIME_SINCE_PRODUCTION_DEPLOY_ACTION_TYPE = "RECEIVE_TIME_SINCE_PRODUCTION_DEPLOY";
 export type ReceiveTimeSinceProductionDeployAction = {
     type: typeof RECEIVE_TIME_SINCE_PRODUCTION_DEPLOY_ACTION_TYPE;
-    time: TimeSinceProductionDeployFromServerType
+    time: KnownTimeSinceProductionDeployType
 }
-export const receiveTimeSinceLastProductionDeploy = (time: TimeSinceProductionDeployFromServerType): ReceiveTimeSinceProductionDeployAction => {
+export const receiveTimeSinceLastProductionDeploy = (time: KnownTimeSinceProductionDeployType): ReceiveTimeSinceProductionDeployAction => {
     return {
         type: RECEIVE_TIME_SINCE_PRODUCTION_DEPLOY_ACTION_TYPE,
         time: time

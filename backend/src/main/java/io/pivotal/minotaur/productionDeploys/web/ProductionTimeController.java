@@ -24,14 +24,7 @@ public class ProductionTimeController {
     @CrossOrigin
     @GetMapping("/timeSinceLastProductionDeploy")
     public TimeSinceMostRecentProductionDeploy getTimeSinceProductionDeploy() {
-
-        LocalDateTime lastDeploy = lastProductionDeployService.timeOfLastProductionDeploy();
-        if (lastDeploy == null) {
-            return new TimeSinceMostRecentProductionDeploy(null, null);
-        }
-
-        long daysBetween = Duration.between(lastDeploy, now()).toDays();
-        return new TimeSinceMostRecentProductionDeploy(daysBetween, 0L);
+        return lastProductionDeployService.timeBetweenMostRecentProductionDeployAnd(now());
     }
 
     @CrossOrigin

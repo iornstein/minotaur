@@ -13,4 +13,8 @@ public class Randomly {
         long randomEpochSecond = ThreadLocalRandom.current().nextLong(minimumTime, maximumTime);
         return LocalDateTime.ofEpochSecond(randomEpochSecond, 0, ZoneOffset.UTC);
     }
+
+    public static Long providerANumberBetween(Long min, Long max) {
+        return ThreadLocalRandom.current().nextLong((max - min) + 1) + min;
+    }
 }

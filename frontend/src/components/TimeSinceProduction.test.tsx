@@ -1,8 +1,12 @@
 import React from 'react';
 import {shallow, ShallowWrapper} from "enzyme";
-import {TimeSinceProduction, TimeSinceProductionProps, mapStateToProps} from "./TimeSinceProduction";
-import {aNonNegativeNumber, aPositiveNumber} from "../utils/testGenerators/generatePrimitives.test";
-import {aState, someTimeSinceProduction} from "../utils/testGenerators/generateDomain.test";
+import {mapStateToProps, TimeSinceProduction, TimeSinceProductionProps} from "./TimeSinceProduction";
+import {aPositiveNumber} from "../utils/testGenerators/generatePrimitives.test";
+import {
+    aState,
+    someHours,
+    someKnownOrUnknownTimeSinceProduction,
+} from "../utils/testGenerators/generateDomain.test";
 import {
     ApplicationState,
     HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET,
@@ -14,31 +18,55 @@ describe("TimeSinceProduction", function () {
         let subject: ShallowWrapper<TimeSinceProductionProps>;
 
         beforeEach(() => {
-            subject = shallow(<TimeSinceProduction timeSinceProduction={aNonNegativeNumber()}/>);
-
+            subject = shallow(<TimeSinceProduction timeSinceProduction={someKnownOrUnknownTimeSinceProduction()}/>);
         });
 
         describe('when it has loaded the time since production', function () {
             describe('when it has been at least 24 hours since a production deploy', function () {
                 it('should displays the days since the last production deploy', function () {
                     const days = aPositiveNumber() + 1;
-                    subject.setProps({timeSinceProduction: days});
+                    subject.setProps({timeSinceProduction: {days, hasBeenAtLeastADay: true}});
 
                     expect(subject.text()).toContain(`${days} days`);
                 });
 
                 it('should display 1 day as singular if it has only been 1 day', function () {
-                    subject.setProps({timeSinceProduction: 1});
+                    subject.setProps({timeSinceProduction: {days: 1, hasBeenAtLeastADay: true}});
 
                     expect(subject.text()).toContain("1 day");
                     expect(subject.text()).not.toContain("days");
                 });
             });
 
-            it('should pluralize zero', function () {
-                subject.setProps({timeSinceProduction: 0});
+            describe('when it has been less than 24 hours since a production deploy', function () {
+                const zeroOrMoreThan1Hours = (): number => {
+                    const hours = someHours();
+                    if (hours === 1) {
+                        return zeroOrMoreThan1Hours();
+                    }
+                    return hours;
+                };
 
-                expect(subject.text()).toContain("0 days");
+                it('should displays the hours since the last production deploy', function () {
+                    const hours = someHours();
+                    subject.setProps({timeSinceProduction: {hours, hasBeenAtLeastADay: false}});
+
+                    expect(subject.text()).toContain(`${hours} hours`);
+                });
+
+                it('should display 1 hour as singular if it has only been 1 hour', function () {
+                    subject.setProps({timeSinceProduction: {hours: 1, hasBeenAtLeastADay: false}});
+
+                    expect(subject.text()).toContain("1 hour");
+                    expect(subject.text()).not.toContain("hours");
+                });
+
+                it('should pluralize zero hours', function () {
+                    subject.setProps({timeSinceProduction: {hours: 0, hasBeenAtLeastADay: false}});
+
+
+                    expect(subject.text()).toContain("0 hours");
+                });
             });
         });
 
@@ -59,7 +87,7 @@ describe("TimeSinceProduction", function () {
 
     describe("mapStateToProps", () => {
         it('should read the time since production', function () {
-            const time = someTimeSinceProduction();
+            const time = someKnownOrUnknownTimeSinceProduction();
             const state: ApplicationState = {...aState(), timeSinceProduction: time};
             expect(mapStateToProps(state).timeSinceProduction).toEqual(time);
         });

@@ -1,8 +1,11 @@
 import axios, {AxiosResponse} from "axios";
 
-export type TimeSinceProductionDeployResponse = {
-    days: number | null
+export type TimeSinceProductionDeployResponse = NonNullTimeSinceProductionDeployResponse | {
+    days: null,
+    hours: null
 }
+
+export type NonNullTimeSinceProductionDeployResponse = { days: number, hours: number }
 
 export const requestTimeSinceProductionDeploy: () => Promise<AxiosResponse<TimeSinceProductionDeployResponse>> = () =>
     axios.get("http://localhost:8080/timeSinceLastProductionDeploy");

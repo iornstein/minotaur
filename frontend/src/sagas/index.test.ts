@@ -1,14 +1,17 @@
 import sagas, {fetchTimeSinceProductionDeploy, updateLastProductionDeploy} from "./index";
 
 import {
-    TimeSinceProductionDeployResponse, notifyThatAProductionDeployHappened,
-    requestTimeSinceProductionDeploy
+    NonNullTimeSinceProductionDeployResponse,
+    notifyThatAProductionDeployHappened,
+    requestTimeSinceProductionDeploy,
+    TimeSinceProductionDeployResponse
 } from "../clients/TimeSinceProductionDeployClient";
 import {AxiosResponse} from "axios";
 import {call, takeEvery} from "@redux-saga/core/effects";
 import {
     applicationError,
-    receiveTimeSinceLastProductionDeploy, REPORT_A_PRODUCTION_DEPLOY_ACTION_TYPE,
+    receiveTimeSinceLastProductionDeploy,
+    REPORT_A_PRODUCTION_DEPLOY_ACTION_TYPE,
     REQUEST_TIME_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE,
     requestTimeSinceProductionDeployAction,
     UPDATE_STATUS_FOR_TIME_SINCE_PRODUCTION_DEPLOY_REQUEST_ACTION,
@@ -17,6 +20,13 @@ import {
 import {runSaga} from "redux-saga";
 import {aNonNegativeNumber, aString} from "../utils/testGenerators/generatePrimitives.test";
 import {NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET, RequestStatus} from "../store/reducer";
+import {
+    someKnownTimeSinceProduction
+} from "../utils/testGenerators/generateDomain.test";
+import {
+    someNonNullTimeSinceProductionFromServer,
+    someTimeSinceProductionFromServer
+} from "../utils/testGenerators/generateServerResponses.test";
 
 jest.mock("../clients/TimeSinceProductionDeployClient");
 const mockedRequestTimeSinceProductionDeploy: jest.MockInstance<Promise<AxiosResponse<TimeSinceProductionDeployResponse>>, any[]> = requestTimeSinceProductionDeploy as any;
@@ -57,24 +67,42 @@ describe("sagas", function () {
         });
 
         describe("when the request is successful", function () {
-            const mockServerToReturnTimeSinceProductionDeploy = (days: number | null) => {
-                mockedRequestTimeSinceProductionDeploy.mockReturnValue(Promise.resolve<AxiosResponse<TimeSinceProductionDeployResponse>>(promiseResolvingTo200ResponseWith({days: days})));
+            const mockServerToReturnTimeSinceProductionDeploy = (response: TimeSinceProductionDeployResponse) => {
+                mockedRequestTimeSinceProductionDeploy.mockReturnValue(Promise.resolve<AxiosResponse<TimeSinceProductionDeployResponse>>(promiseResolvingTo200ResponseWith(response)));
             };
 
             describe('when a production deploy has happened', function () {
-                it('should dispatch the action with the time since the last production deploy from the server', async function () {
-                    const time = aNonNegativeNumber();
-                    mockServerToReturnTimeSinceProductionDeploy(time);
+                describe('at least a day ago', function () {
+                    it('should dispatch the action with the days since the last production deploy from the server', async function () {
+                        const days = aNonNegativeNumber();
+                        const time: NonNullTimeSinceProductionDeployResponse = {...someNonNullTimeSinceProductionFromServer(), days: days};
+                        mockServerToReturnTimeSinceProductionDeploy(time);
 
-                    const mockDispatcher = jest.fn();
-                    await runSaga({dispatch: mockDispatcher}, fetchTimeSinceProductionDeploy, anyAction);
-                    expect(mockDispatcher).toHaveBeenCalledWith(receiveTimeSinceLastProductionDeploy(time));
+                        const mockDispatcher = jest.fn();
+                        await runSaga({dispatch: mockDispatcher}, fetchTimeSinceProductionDeploy, anyAction);
+                        expect(mockDispatcher).toHaveBeenCalledWith(receiveTimeSinceLastProductionDeploy({days, hasBeenAtLeastADay: true}));
+                    });
+                });
+
+                describe('less than a day ago', function () {
+                    it('should dispatch the action with the days since the last production deploy from the server', async function () {
+                        const time: NonNullTimeSinceProductionDeployResponse = {...someNonNullTimeSinceProductionFromServer(), days: 0};
+                        mockServerToReturnTimeSinceProductionDeploy(time);
+                        const hours = time.hours;
+
+                        const mockDispatcher = jest.fn();
+                        await runSaga({dispatch: mockDispatcher}, fetchTimeSinceProductionDeploy, anyAction);
+                        expect(mockDispatcher).toHaveBeenCalledWith(receiveTimeSinceLastProductionDeploy({
+                            hours,
+                            hasBeenAtLeastADay: false
+                        }));
+                    });
                 });
             });
 
             describe('when there has not yet been a production deploy', function () {
                 it('should dispatch the action with the information that a production deploy has never happened', async function () {
-                    mockServerToReturnTimeSinceProductionDeploy(null);
+                    mockServerToReturnTimeSinceProductionDeploy({days: null, hours: null});
 
                     const mockDispatcher = jest.fn();
                     await runSaga({dispatch: mockDispatcher}, fetchTimeSinceProductionDeploy, anyAction);
@@ -83,7 +111,7 @@ describe("sagas", function () {
             });
 
             it('should dispatch that the request is no longer in flight AFTER the response is received', async function () {
-                mockedRequestTimeSinceProductionDeploy.mockReturnValue(Promise.resolve<AxiosResponse<TimeSinceProductionDeployResponse>>(promiseResolvingTo200ResponseWith({days: aNonNegativeNumber()})));
+                mockedRequestTimeSinceProductionDeploy.mockReturnValue(Promise.resolve<AxiosResponse<TimeSinceProductionDeployResponse>>(promiseResolvingTo200ResponseWith(someTimeSinceProductionFromServer())));
 
                 const mockDispatcher = jest.fn();
                 await runSaga({dispatch: mockDispatcher}, fetchTimeSinceProductionDeploy, anyAction);
@@ -92,7 +120,7 @@ describe("sagas", function () {
 
                 expect(mockDispatcher).toHaveBeenCalledWith(updateStatusForTimeSinceProductionDeployRequest(RequestStatus.NOT_IN_FLIGHT));
                 const indexOfUpdateRequestStatus = dispatchCalls.findIndex(call => call[0].type === UPDATE_STATUS_FOR_TIME_SINCE_PRODUCTION_DEPLOY_REQUEST_ACTION);
-                const indexOfReceiveTimeSinceLastProductionDeploy = dispatchCalls.findIndex(call => call[0].type === receiveTimeSinceLastProductionDeploy(0).type);
+                const indexOfReceiveTimeSinceLastProductionDeploy = dispatchCalls.findIndex(call => call[0].type === receiveTimeSinceLastProductionDeploy(someKnownTimeSinceProduction()).type);
                 expect(indexOfReceiveTimeSinceLastProductionDeploy).toBeLessThan(indexOfUpdateRequestStatus);
             });
         });

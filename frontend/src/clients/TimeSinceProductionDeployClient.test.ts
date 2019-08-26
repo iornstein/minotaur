@@ -4,14 +4,13 @@ import {
 } from "./TimeSinceProductionDeployClient";
 import MockAdapter from "axios-mock-adapter";
 import axios from "axios";
-import {aNonNegativeNumber, aString} from "../utils/testGenerators/generatePrimitives.test";
+import {aString} from "../utils/testGenerators/generatePrimitives.test";
+import {someTimeSinceProductionFromServer} from "../utils/testGenerators/generateServerResponses.test";
 
 describe('requestTimeSinceProductionDeploy', function () {
     it('should return the time since the last production deploy', function () {
         const mock = new MockAdapter(axios);
-        const expectedResponse : TimeSinceProductionDeployResponse = {
-            days: aNonNegativeNumber()
-        };
+        const expectedResponse : TimeSinceProductionDeployResponse = someTimeSinceProductionFromServer();
         mock.onGet('http://localhost:8080/timeSinceLastProductionDeploy').reply(200, expectedResponse);
 
         requestTimeSinceProductionDeploy().then((response) => {

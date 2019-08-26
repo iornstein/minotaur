@@ -21,11 +21,11 @@ public class TimeSinceMostRecentProductionDeploy {
         return hours;
     }
 
-    public void setDays(Long days) {
+    public void setDays(long days) {
         this.days = days;
     }
 
-    public void setHours(Long hours) {
+    public void setHours(long hours) {
         this.hours = hours;
     }
 }
