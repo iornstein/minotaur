@@ -9,10 +9,6 @@ import java.time.LocalDateTime;
 public class LastProductionDeployService {
     private LocalDateTime lastProductionDeploy = null;
 
-    public LocalDateTime timeOfLastProductionDeploy() {
-        return lastProductionDeploy;
-    }
-
     public void reportADeployToProduction(LocalDateTime now) {
         lastProductionDeploy = now;
     }

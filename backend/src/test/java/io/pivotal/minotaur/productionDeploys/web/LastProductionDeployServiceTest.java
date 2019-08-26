@@ -18,11 +18,6 @@ public class LastProductionDeployServiceTest {
     }
 
     @Test
-    public void timeOfLastProductionDeploy_returnsNull_whenThereHasNotYetBeenADeployToProduction() {
-        assertThat(subject.timeOfLastProductionDeploy()).isNull();
-    }
-
-    @Test
     public void timeBetweenMostRecentProductionDeploy_returnsTheTimeDifferenceFromTheLastDeploy() {
         LocalDateTime someTime = Randomly.provideALocalDateTime();
 
@@ -43,18 +38,5 @@ public class LastProductionDeployServiceTest {
 
         assertThat(actual.getDays()).isNull();
         assertThat(actual.getHours()).isNull();
-    }
-
-    @Test
-    public void serviceReportsTheLastReportedDeployToProduction() {
-        LocalDateTime someTime = Randomly.provideALocalDateTime();
-        subject.reportADeployToProduction(someTime);
-
-        assertThat(subject.timeOfLastProductionDeploy()).isEqualTo(someTime);
-
-        LocalDateTime someOtherTime = Randomly.provideALocalDateTime();
-        subject.reportADeployToProduction(someOtherTime);
-
-        assertThat(subject.timeOfLastProductionDeploy()).isEqualTo(someOtherTime);
     }
 }
