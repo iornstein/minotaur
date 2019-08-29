@@ -1,9 +1,9 @@
-package io.pivotal.minotaur.productionDeploys.web;
+package io.pivotal.minotaur.productionDeploys.domainObjects;
 
-class ThereHasNeverBeenAProductionDeploy extends TimeSinceMostRecentProductionDeploy {
+public class ThereHasNeverBeenAProductionDeploy extends TimeSinceMostRecentProductionDeploy {
     private static final ThereHasNeverBeenAProductionDeploy INSTANCE = new ThereHasNeverBeenAProductionDeploy();
 
-    static ThereHasNeverBeenAProductionDeploy instance() {
+    public static ThereHasNeverBeenAProductionDeploy instance() {
         return INSTANCE;
     }
 

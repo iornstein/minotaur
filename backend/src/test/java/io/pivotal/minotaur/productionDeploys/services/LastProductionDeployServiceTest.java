@@ -1,5 +1,6 @@
-package io.pivotal.minotaur.productionDeploys.web;
+package io.pivotal.minotaur.productionDeploys.services;
 
+import io.pivotal.minotaur.productionDeploys.domainObjects.TimeSinceMostRecentProductionDeploy;
 import io.pivotal.minotaur.utils.Randomly;
 import org.junit.Before;
 import org.junit.Test;

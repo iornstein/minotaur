@@ -1,4 +1,4 @@
-package io.pivotal.minotaur.productionDeploys.web;
+package io.pivotal.minotaur.productionDeploys.domainObjects;
 
 public class TimeSinceMostRecentProductionDeploy {
 
@@ -8,7 +8,7 @@ public class TimeSinceMostRecentProductionDeploy {
     public TimeSinceMostRecentProductionDeploy() {
     }
 
-    TimeSinceMostRecentProductionDeploy(Long days, Long hours) {
+    public TimeSinceMostRecentProductionDeploy(Long days, Long hours) {
         this.days = days;
         this.hours = hours;
     }

@@ -1,5 +1,7 @@
-package io.pivotal.minotaur.productionDeploys.web;
+package io.pivotal.minotaur.productionDeploys.services;
 
+import io.pivotal.minotaur.productionDeploys.domainObjects.ThereHasNeverBeenAProductionDeploy;
+import io.pivotal.minotaur.productionDeploys.domainObjects.TimeSinceMostRecentProductionDeploy;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -20,6 +22,6 @@ public class LastProductionDeployService {
         Duration duration = Duration.between(lastProductionDeploy, now);
         long days = duration.toDays();
         long hours = duration.minusDays(days).toHours();
-        return new TimeSinceMostRecentProductionDeploy(days,hours);
+        return new TimeSinceMostRecentProductionDeploy(days, hours);
     }
 }
