@@ -1,5 +1,8 @@
 package io.pivotal.minotaur.utils;
 
+import io.pivotal.minotaur.tracker.domainObjects.TrackerProject;
+
+import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.ZoneOffset;
@@ -14,7 +17,23 @@ public class Randomly {
         return LocalDateTime.ofEpochSecond(randomEpochSecond, 0, ZoneOffset.UTC);
     }
 
-    public static Long providerANumberBetween(Long min, Long max) {
+    public static Long providerAnIntegerBetween(Long min, Long max) {
         return ThreadLocalRandom.current().nextLong((max - min) + 1) + min;
+    }
+
+    public static Long provideAPositiveInteger() {
+        return providerAnIntegerBetween(0L, 1000000L);
+    }
+
+    public static Double provideAPositiveNumber() {
+        return ThreadLocalRandom.current().nextDouble(0, 1000000);
+    }
+
+    public static String provideAString() {
+        return String.format("a%dz", provideAPositiveInteger());
+    }
+
+    public static TrackerProject provideATrackerProject() {
+        return new TrackerProject(provideAString(), provideAPositiveInteger(), provideAPositiveNumber());
     }
 }

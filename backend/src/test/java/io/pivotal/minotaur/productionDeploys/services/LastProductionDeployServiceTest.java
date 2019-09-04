@@ -22,8 +22,8 @@ public class LastProductionDeployServiceTest {
     public void timeBetweenMostRecentProductionDeploy_returnsTheTimeDifferenceFromTheLastDeploy() {
         LocalDateTime someTime = Randomly.provideALocalDateTime();
 
-        Long hoursBetween = Randomly.providerANumberBetween(1L, 23L);
-        Long daysBetween = Randomly.providerANumberBetween(1L, 10L);
+        Long hoursBetween = Randomly.providerAnIntegerBetween(1L, 23L);
+        Long daysBetween = Randomly.providerAnIntegerBetween(1L, 10L);
         LocalDateTime laterTime = someTime.plusDays(daysBetween).plusHours(hoursBetween);
 
         subject.reportADeployToProduction(someTime);

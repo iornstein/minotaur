@@ -1,4 +1,4 @@
-package io.pivotal.minotaur;
+package io.pivotal.minotaur.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

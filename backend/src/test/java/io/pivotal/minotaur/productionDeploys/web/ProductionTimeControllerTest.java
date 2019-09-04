@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @RunWith(SpringRunner.class)
-@WebMvcTest
+@WebMvcTest(ProductionTimeController.class)
 public class ProductionTimeControllerTest {
 
     @Autowired

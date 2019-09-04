@@ -4,5 +4,5 @@ display the days since you have last deployed since production. Hopefully this c
 as low as possible `:)`.
 
 ## how to run
-You can run this with [docker](https://docs.docker.com/docker-for-mac/install/). Simply run `docker-compose up`. 
+You can run this with [docker](https://docs.docker.com/docker-for-mac/install/). Simply run `docker-compose up --build`. 
 You can visit the front-end at `http:localhost:3000`
