@@ -34,7 +34,7 @@ export const reducer = (state: ApplicationState = initialState, action: Applicat
         case "POLL_SERVER_ACTION_TYPE":
             return {
                 ...state,
-                timeSinceProductionRequestStatus: state.timeSinceProductionRequestStatus === RequestStatus.IN_FLIGHT ? RequestStatus.IN_FLIGHT : RequestStatus.SHOULD_BE_MADE
+                timeSinceProductionRequestStatus: updateRequestStatusUponPolling(state.timeSinceProductionRequestStatus)
             };
         case "RECEIVE_TIME_SINCE_PRODUCTION_DEPLOY":
             return {...state, timeSinceProduction: action.time};
@@ -44,4 +44,8 @@ export const reducer = (state: ApplicationState = initialState, action: Applicat
         default:
             return state;
     }
+};
+
+const updateRequestStatusUponPolling = (currentRequestStatus: RequestStatus) => {
+    return currentRequestStatus === RequestStatus.IN_FLIGHT ? RequestStatus.IN_FLIGHT : RequestStatus.SHOULD_BE_MADE
 };
