@@ -11,9 +11,19 @@ export type KnownOrUnknownTimeSinceProductionDeployType =
     KnownTimeSinceProductionDeployType
     | typeof HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET;
 
+export type PossiblyUnknownValue<T> = T | typeof HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET;
+
+export type TrackerAnalytics = {
+        projectName: string,
+        velocity: number,
+        volatility: number
+    };
+
 export type ApplicationState = {
     timeSinceProduction: KnownOrUnknownTimeSinceProductionDeployType;
     timeSinceProductionRequestStatus: RequestStatus;
+    trackerAnalyticsRequestStatus: RequestStatus;
+    trackerAnalytics: PossiblyUnknownValue<TrackerAnalytics>;
 }
 
 export enum RequestStatus {
@@ -25,22 +35,30 @@ export enum RequestStatus {
 const initialState: ApplicationState = {
     timeSinceProduction: HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET,
     timeSinceProductionRequestStatus: RequestStatus.NOT_IN_FLIGHT,
+    trackerAnalyticsRequestStatus: RequestStatus.NOT_IN_FLIGHT,
+    trackerAnalytics: HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET,
 };
 
 export const reducer = (state: ApplicationState = initialState, action: ApplicationAction): ApplicationState => {
     switch (action.type) {
         case "UPDATE_STATUS_TIME_SINCE_PRODUCTION_DEPLOY_REQUEST_ACTION":
             return {...state, timeSinceProductionRequestStatus: action.status};
+        case "UPDATE_STATUS_FOR_TRACKER_ANALYTICS_ACTION":
+            return {...state, trackerAnalyticsRequestStatus: action.status};
         case "POLL_SERVER_ACTION_TYPE":
             return {
                 ...state,
-                timeSinceProductionRequestStatus: updateRequestStatusUponPolling(state.timeSinceProductionRequestStatus)
+                timeSinceProductionRequestStatus: updateRequestStatusUponPolling(state.timeSinceProductionRequestStatus),
+                trackerAnalyticsRequestStatus: updateRequestStatusUponPolling(state.trackerAnalyticsRequestStatus)
             };
         case "RECEIVE_TIME_SINCE_PRODUCTION_DEPLOY":
             return {...state, timeSinceProduction: action.time};
+        case "RECEIVE_TRACKER_ANALYTICS_ACTION":
+            return {...state, trackerAnalytics: action.trackerAnalytics};
         case "REQUEST_TIME_SINCE_PRODUCTION_DEPLOY":
         case "REPORT_A_PRODUCTION_DEPLOY_ACTION":
         case "APPLICATION_ERROR_ACTION_TYPE":
+        case "REQUEST_TRACKER_ANALYTICS":
         default:
             return state;
     }

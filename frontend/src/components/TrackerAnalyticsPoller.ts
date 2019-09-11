@@ -1,26 +1,22 @@
 import {ApplicationState, RequestStatus} from "../store/reducer";
-import {
-    ApplicationAction,
-    requestTimeSinceProductionDeployAction,
-    updateStatusForTimeSinceProductionDeployRequest
-} from "../store/actions";
-import React, {Dispatch} from 'react';
+import {Dispatch} from "react";
+import {ApplicationAction, requestTrackerAnalytics, updateStatusForTrackerAnalyticsRequest} from "../store/actions";
 import {connect} from "react-redux";
 import {RequestMaker} from "./RequestMaker";
 
 export const mapStateToProps = (state: ApplicationState) => {
     return {
-        requestStatus: state.timeSinceProductionRequestStatus
+        requestStatus: state.trackerAnalyticsRequestStatus
     }
 };
 
 export const mapDispatchToProps = (dispatch: Dispatch<ApplicationAction>) => {
     return {
         makeRequest: () => {
-            dispatch(requestTimeSinceProductionDeployAction());
+            dispatch(requestTrackerAnalytics());
         },
         updateRequestStatusToInFlight: () => {
-            dispatch(updateStatusForTimeSinceProductionDeployRequest(RequestStatus.IN_FLIGHT));
+            dispatch(updateStatusForTrackerAnalyticsRequest(RequestStatus.IN_FLIGHT));
         }
     }
 };

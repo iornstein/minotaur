@@ -4,7 +4,6 @@ import {
     requestTimeSinceProductionDeployAction,
     updateStatusForTimeSinceProductionDeployRequest
 } from "../store/actions";
-import React from 'react';
 import {ApplicationState, RequestStatus} from "../store/reducer";
 
 describe('TimeSinceProductionPoller', function () {

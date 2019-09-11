@@ -1,4 +1,4 @@
-import sagas, {fetchTimeSinceProductionDeploy, updateLastProductionDeploy} from "./index";
+import sagas, {fetchTimeSinceProductionDeploy, fetchTrackerAnalytics, updateLastProductionDeploy} from "./index";
 
 import {
     NonNullTimeSinceProductionDeployResponse,
@@ -9,28 +9,32 @@ import {
 import {AxiosResponse} from "axios";
 import {call, takeEvery} from "@redux-saga/core/effects";
 import {
+    ApplicationAction,
     applicationError,
-    receiveTimeSinceLastProductionDeploy,
+    receiveTimeSinceLastProductionDeploy, receiveTrackerAnalytics,
     REPORT_A_PRODUCTION_DEPLOY_ACTION_TYPE,
-    REQUEST_TIME_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE,
+    REQUEST_TIME_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE, REQUEST_TRACKER_ANALYTICS_ACTION_TYPE,
     requestTimeSinceProductionDeployAction,
     UPDATE_STATUS_FOR_TIME_SINCE_PRODUCTION_DEPLOY_REQUEST_ACTION,
-    updateStatusForTimeSinceProductionDeployRequest
+    updateStatusForTimeSinceProductionDeployRequest, updateStatusForTrackerAnalyticsRequest
 } from "../store/actions";
 import {runSaga} from "redux-saga";
-import {aNonNegativeNumber, aString} from "../utils/testGenerators/generatePrimitives.test";
+import {aNonNegativeInteger, aString} from "../utils/testGenerators/generatePrimitives.test";
 import {NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET, RequestStatus} from "../store/reducer";
 import {
     someKnownTimeSinceProduction
 } from "../utils/testGenerators/generateDomain.test";
 import {
     someNonNullTimeSinceProductionFromServer,
-    someTimeSinceProductionFromServer
+    someTimeSinceProductionFromServer, someTrackerAnalyticsResponse
 } from "../utils/testGenerators/generateServerResponses.test";
+import {requestTrackerAnalytics, TrackerAnalyticsResponse} from "../clients/TrackerAnalyticsClient";
 
 jest.mock("../clients/TimeSinceProductionDeployClient");
+jest.mock("../clients/TrackerAnalyticsClient");
 const mockedRequestTimeSinceProductionDeploy: jest.MockInstance<Promise<AxiosResponse<TimeSinceProductionDeployResponse>>, any[]> = requestTimeSinceProductionDeploy as any;
 const mockedNotifyThatAProductionDeployHappened: jest.MockInstance<Promise<AxiosResponse<TimeSinceProductionDeployResponse>>, any[]> = notifyThatAProductionDeployHappened as any;
+const mockedRequestTrackerAnalytics: jest.MockInstance<Promise<AxiosResponse<TrackerAnalyticsResponse>>, any[]> = requestTrackerAnalytics as any;
 
 describe("sagas", function () {
     describe("listening to actions", () => {
@@ -45,6 +49,12 @@ describe("sagas", function () {
             const actual = sagasGenerator.next();
             expect(actual.value.payload).toContainEqual(takeEvery(REPORT_A_PRODUCTION_DEPLOY_ACTION_TYPE, updateLastProductionDeploy));
         });
+
+        it('should fetch the tracker analytics when it receives the appropriate action', function () {
+            const sagasGenerator = sagas();
+            const actual = sagasGenerator.next();
+            expect(actual.value.payload).toContainEqual(takeEvery(REQUEST_TRACKER_ANALYTICS_ACTION_TYPE, fetchTrackerAnalytics));
+        });
     });
 
     const promiseResolvingTo200ResponseWith = <T>(data: T) => {
@@ -57,7 +67,16 @@ describe("sagas", function () {
         };
         return Promise.resolve<AxiosResponse<T>>(response)
     };
-    const anyAction = requestTimeSinceProductionDeployAction();
+    const anyAction : ApplicationAction = requestTimeSinceProductionDeployAction();
+    const expectThatRunningSaga = (saga: typeof fetchTimeSinceProductionDeploy | typeof fetchTrackerAnalytics) => {
+      return {
+          dispatchesTheAction: async (action: ApplicationAction) => {
+              const mockDispatcher = jest.fn();
+              await runSaga({dispatch: mockDispatcher}, saga, anyAction as any);
+              expect(mockDispatcher).toHaveBeenCalledWith(action);
+          }
+      }
+    };
 
     describe("fetchTimeSinceProductionDeploy", () => {
         it('should use the client to request the time since the last production deploy', async function () {
@@ -74,25 +93,30 @@ describe("sagas", function () {
             describe('when a production deploy has happened', function () {
                 describe('at least a day ago', function () {
                     it('should dispatch the action with the days since the last production deploy from the server', async function () {
-                        const days = aNonNegativeNumber();
-                        const time: NonNullTimeSinceProductionDeployResponse = {...someNonNullTimeSinceProductionFromServer(), days: days};
+                        const days = aNonNegativeInteger();
+                        const time: NonNullTimeSinceProductionDeployResponse = {
+                            ...someNonNullTimeSinceProductionFromServer(),
+                            days: days
+                        };
                         mockServerToReturnTimeSinceProductionDeploy(time);
 
-                        const mockDispatcher = jest.fn();
-                        await runSaga({dispatch: mockDispatcher}, fetchTimeSinceProductionDeploy, anyAction);
-                        expect(mockDispatcher).toHaveBeenCalledWith(receiveTimeSinceLastProductionDeploy({days, hasBeenAtLeastADay: true}));
+                        await expectThatRunningSaga(fetchTimeSinceProductionDeploy).dispatchesTheAction(receiveTimeSinceLastProductionDeploy({
+                            days: days,
+                            hasBeenAtLeastADay: true
+                        }));
                     });
                 });
 
                 describe('less than a day ago', function () {
                     it('should dispatch the action with the days since the last production deploy from the server', async function () {
-                        const time: NonNullTimeSinceProductionDeployResponse = {...someNonNullTimeSinceProductionFromServer(), days: 0};
+                        const time: NonNullTimeSinceProductionDeployResponse = {
+                            ...someNonNullTimeSinceProductionFromServer(),
+                            days: 0
+                        };
                         mockServerToReturnTimeSinceProductionDeploy(time);
                         const hours = time.hours;
 
-                        const mockDispatcher = jest.fn();
-                        await runSaga({dispatch: mockDispatcher}, fetchTimeSinceProductionDeploy, anyAction);
-                        expect(mockDispatcher).toHaveBeenCalledWith(receiveTimeSinceLastProductionDeploy({
+                        await expectThatRunningSaga(fetchTimeSinceProductionDeploy).dispatchesTheAction(receiveTimeSinceLastProductionDeploy({
                             hours,
                             hasBeenAtLeastADay: false
                         }));
@@ -166,6 +190,57 @@ describe("sagas", function () {
                 await runSaga({dispatch: mockDispatcher}, updateLastProductionDeploy, anyAction);
 
                 expect(mockDispatcher).toHaveBeenCalledWith(applicationError(reason, "updateLastProductionDeploy"));
+            });
+        });
+    });
+
+    describe("fetchTrackerAnalytics", () => {
+        it('should use the client to request the tracker analytics', async function () {
+            await runSaga({dispatch: jest.fn()}, fetchTrackerAnalytics, anyAction);
+
+            expect(mockedRequestTrackerAnalytics).toHaveBeenCalled();
+        });
+
+        it('should dispatch that the request is no longer in flight', async function () {
+            mockedRequestTrackerAnalytics.mockReturnValue(Promise.reject(aString()));
+            const mockDispatcher = jest.fn();
+            await runSaga({dispatch: mockDispatcher}, fetchTrackerAnalytics, anyAction);
+
+            expect(mockDispatcher).toHaveBeenCalledWith(updateStatusForTrackerAnalyticsRequest(RequestStatus.NOT_IN_FLIGHT));
+        });
+
+        describe('when the request is successful', function () {
+            it('should dispatch the action that the tracker analytics have been received', async function () {
+                const trackerAnalytics = someTrackerAnalyticsResponse();
+                mockedRequestTrackerAnalytics
+                    .mockReturnValue(Promise.resolve<AxiosResponse<TrackerAnalyticsResponse>>(
+                        promiseResolvingTo200ResponseWith(trackerAnalytics))
+                    );
+
+                await expectThatRunningSaga(fetchTrackerAnalytics).dispatchesTheAction(receiveTrackerAnalytics({
+                    projectName: trackerAnalytics.name,
+                    velocity: trackerAnalytics.velocity,
+                    volatility: trackerAnalytics.volatility
+                }));
+            });
+        });
+
+        describe('when there is an error', function () {
+            it('should dispatch the error', async function () {
+                const reason = aString();
+                mockedRequestTrackerAnalytics.mockReturnValue(Promise.reject(reason));
+                const mockDispatcher = jest.fn();
+                await runSaga({dispatch: mockDispatcher}, fetchTrackerAnalytics, anyAction);
+
+                expect(mockDispatcher).toHaveBeenCalledWith(applicationError(reason, "fetchTrackerAnalytics"));
+            });
+
+            it('should dispatch that the request is no longer in flight', async function () {
+                mockedRequestTrackerAnalytics.mockReturnValue(Promise.reject(aString()));
+                const mockDispatcher = jest.fn();
+                await runSaga({dispatch: mockDispatcher}, fetchTrackerAnalytics, anyAction);
+
+                expect(mockDispatcher).toHaveBeenCalledWith(updateStatusForTrackerAnalyticsRequest(RequestStatus.NOT_IN_FLIGHT));
             });
         });
     });

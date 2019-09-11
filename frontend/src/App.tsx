@@ -6,6 +6,8 @@ import {ApplicationAction, pollServer} from "./store/actions";
 import TimeSinceLastProductionDeployPoller from "./components/TimeSinceProductionDeployPoller";
 import {connect} from "react-redux";
 import ProductionDeployReporter from "./components/ProductionDeployReporter";
+import TrackerAnalyticsPoller from "./components/TrackerAnalyticsPoller";
+import TrackerAnalytics from "./components/TrackerInfo";
 
 export type Props = {
     pollServer: () => void;
@@ -19,7 +21,9 @@ export class App extends React.Component<Props, {}> {
     render() {
         return (
             <div className="minotaur">
+                <TrackerAnalyticsPoller/>
                 <TimeSinceLastProductionDeployPoller/>
+                <TrackerAnalytics/>
                 <TimeSinceProduction/>
                 <ProductionDeployReporter/>
             </div>

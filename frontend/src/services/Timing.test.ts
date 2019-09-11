@@ -1,12 +1,12 @@
 import {every} from "./Timing";
-import {aPositiveNumber} from "../utils/testGenerators/generatePrimitives.test";
+import {aPositiveInteger} from "../utils/testGenerators/generatePrimitives.test";
 
 jest.useFakeTimers();
 
 describe('every', function () {
 
     it('should immediately run the function once', function () {
-        const interval = aPositiveNumber();
+        const interval = aPositiveInteger();
         const callback = jest.fn();
         every(interval).do(callback);
 
@@ -14,7 +14,7 @@ describe('every', function () {
     });
 
     it('should run the function every interval', function () {
-        const interval = aPositiveNumber();
+        const interval = aPositiveInteger();
         const callback = jest.fn();
         every(interval).do(callback);
         callback.mockClear();

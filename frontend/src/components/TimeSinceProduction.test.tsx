@@ -1,7 +1,7 @@
 import React from 'react';
 import {shallow, ShallowWrapper} from "enzyme";
 import {mapStateToProps, TimeSinceProduction, TimeSinceProductionProps} from "./TimeSinceProduction";
-import {aPositiveNumber} from "../utils/testGenerators/generatePrimitives.test";
+import {aPositiveInteger} from "../utils/testGenerators/generatePrimitives.test";
 import {
     aState,
     someHours,
@@ -24,7 +24,7 @@ describe("TimeSinceProduction", function () {
         describe('when it has loaded the time since production', function () {
             describe('when it has been at least 24 hours since a production deploy', function () {
                 it('should displays the days since the last production deploy', function () {
-                    const days = aPositiveNumber() + 1;
+                    const days = aPositiveInteger() + 1;
                     subject.setProps({timeSinceProduction: {days, hasBeenAtLeastADay: true}});
 
                     expect(subject.text()).toContain(`${days} days`);

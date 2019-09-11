@@ -1,24 +1,31 @@
-import {call, put, takeEvery, all} from 'redux-saga/effects'
+import {all, call, put, takeEvery} from 'redux-saga/effects'
 import {
     ApplicationAction,
     applicationError,
-    receiveTimeSinceLastProductionDeploy, REPORT_A_PRODUCTION_DEPLOY_ACTION_TYPE,
+    receiveTimeSinceLastProductionDeploy,
+    receiveTrackerAnalytics,
+    REPORT_A_PRODUCTION_DEPLOY_ACTION_TYPE,
     REQUEST_TIME_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE,
-    updateStatusForTimeSinceProductionDeployRequest
+    REQUEST_TRACKER_ANALYTICS_ACTION_TYPE,
+    updateStatusForTimeSinceProductionDeployRequest,
+    updateStatusForTrackerAnalyticsRequest
 } from "../store/actions";
 
 import {
     notifyThatAProductionDeployHappened,
-    requestTimeSinceProductionDeploy, TimeSinceProductionDeployResponse
+    requestTimeSinceProductionDeploy,
+    TimeSinceProductionDeployResponse
 } from "../clients/TimeSinceProductionDeployClient";
 import {
+    KnownTimeSinceProductionDeployType,
     NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET,
     RequestStatus,
-    KnownTimeSinceProductionDeployType
+    TrackerAnalytics
 } from "../store/reducer";
 import {AxiosResponse} from "axios";
+import {requestTrackerAnalytics, TrackerAnalyticsResponse} from "../clients/TrackerAnalyticsClient";
 
-const convertToDomainResponse = (time: TimeSinceProductionDeployResponse) : KnownTimeSinceProductionDeployType => {
+const convertResponseToKnownTimeSinceProductionDomainObject = (time: TimeSinceProductionDeployResponse): KnownTimeSinceProductionDeployType => {
     if (time.days === null || time.hours === null) {
         return NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET;
     }
@@ -34,15 +41,22 @@ const convertToDomainResponse = (time: TimeSinceProductionDeployResponse) : Know
     };
 };
 
+const convertResponseToTrackerAnalyticsDomainObject = (response: TrackerAnalyticsResponse): TrackerAnalytics => {
+    return {
+        projectName: response.name,
+        velocity: response.velocity,
+        volatility: response.volatility,
+    };
+};
+
 export function* fetchTimeSinceProductionDeploy(ignored: ApplicationAction) {
-    try {
-        const response: AxiosResponse<TimeSinceProductionDeployResponse> = yield call(requestTimeSinceProductionDeploy);
-        yield put(receiveTimeSinceLastProductionDeploy(convertToDomainResponse(response.data)));
-    } catch (e) {
-        yield put(applicationError(e, "fetchTimeSinceProductionDeploy"));
-    } finally {
-        yield put(updateStatusForTimeSinceProductionDeployRequest(RequestStatus.NOT_IN_FLIGHT));
-    }
+    yield requestFromServerAndDispatchResponses(
+        requestTimeSinceProductionDeploy,
+        convertResponseToKnownTimeSinceProductionDomainObject,
+        receiveTimeSinceLastProductionDeploy,
+        "fetchTimeSinceProductionDeploy",
+        updateStatusForTimeSinceProductionDeployRequest
+    );
 }
 
 export function* updateLastProductionDeploy(ignored: ApplicationAction) {
@@ -54,10 +68,37 @@ export function* updateLastProductionDeploy(ignored: ApplicationAction) {
     }
 }
 
+export function* fetchTrackerAnalytics(ignored: ApplicationAction) {
+    yield requestFromServerAndDispatchResponses(
+        requestTrackerAnalytics,
+        convertResponseToTrackerAnalyticsDomainObject,
+        receiveTrackerAnalytics,
+        "fetchTrackerAnalytics",
+        updateStatusForTrackerAnalyticsRequest
+    );
+}
+
+function* requestFromServerAndDispatchResponses<SERVER_RESPONSE,DOMAIN_RESPONSE>(
+    requester: () => Promise<AxiosResponse<SERVER_RESPONSE>>,
+    converter: (response: SERVER_RESPONSE) => DOMAIN_RESPONSE,
+    receiveActionCreator: (data: DOMAIN_RESPONSE) => ApplicationAction,
+    location: string,
+    requestStatusUpdater: (status: RequestStatus.IN_FLIGHT | RequestStatus.NOT_IN_FLIGHT) => ApplicationAction) {
+    try {
+        const response = (yield call(requester)).data;
+        yield put(receiveActionCreator(converter(response)));
+    } catch (e) {
+        yield put(applicationError(e, location));
+    } finally {
+        yield put(requestStatusUpdater(RequestStatus.NOT_IN_FLIGHT));
+    }
+}
+
 function* saga() {
     yield all([
         takeEvery(REQUEST_TIME_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE, fetchTimeSinceProductionDeploy),
-        takeEvery(REPORT_A_PRODUCTION_DEPLOY_ACTION_TYPE, updateLastProductionDeploy)
+        takeEvery(REPORT_A_PRODUCTION_DEPLOY_ACTION_TYPE, updateLastProductionDeploy),
+        takeEvery(REQUEST_TRACKER_ANALYTICS_ACTION_TYPE, fetchTrackerAnalytics)
     ]);
 }
 

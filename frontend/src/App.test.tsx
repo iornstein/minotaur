@@ -9,6 +9,8 @@ import {every} from "./services/Timing";
 import {pollServer} from "./store/actions";
 import TimeSinceLastProductionDeployPoller from "./components/TimeSinceProductionDeployPoller";
 import ProductionDeployReporter from "./components/ProductionDeployReporter";
+import TrackerAnalyticsPoller from "./components/TrackerAnalyticsPoller";
+import TrackerAnalytics from "./components/TrackerInfo";
 
 jest.mock("./services/Timing");
 
@@ -39,6 +41,16 @@ describe('Application', function () {
     it('should add the TimeSinceLastProductionPoller to the page', function () {
         const subject = shallow(<App pollServer={jest.fn()}/>);
         expect(subject.find(TimeSinceLastProductionDeployPoller).exists()).toBeTruthy();
+    });
+
+    it('should add the TrackerAnalyticsPoller to the page', function () {
+        const subject = shallow(<App pollServer={jest.fn()}/>);
+        expect(subject.find(TrackerAnalyticsPoller).exists()).toBeTruthy();
+    });
+
+    it('should add the TrackerAnalytics tab to the page', function () {
+        const subject = shallow(<App pollServer={jest.fn()}/>);
+        expect(subject.find(TrackerAnalytics).exists()).toBeTruthy();
     });
 
     it('should send action to poll the server every 10 minutes', function () {

@@ -1,6 +1,6 @@
 import {
     RequestStatus,
-    KnownTimeSinceProductionDeployType
+    KnownTimeSinceProductionDeployType, TrackerAnalytics
 } from "./reducer";
 
 export const REQUEST_TIME_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE = "REQUEST_TIME_SINCE_PRODUCTION_DEPLOY";
@@ -71,10 +71,45 @@ export const reportAProductionDeploy = () : ReportAProductionDeployAction => {
     }
 };
 
+export const REQUEST_TRACKER_ANALYTICS_ACTION_TYPE = "REQUEST_TRACKER_ANALYTICS";
+export type RequestTrackerAnalyticsAction = {
+    type: typeof REQUEST_TRACKER_ANALYTICS_ACTION_TYPE;
+}
+export const requestTrackerAnalytics = (): RequestTrackerAnalyticsAction => {
+    return {
+        type: REQUEST_TRACKER_ANALYTICS_ACTION_TYPE
+    }
+};
+
+export type UpdateStatusForTrackerAnalyticsAction = {
+    type: "UPDATE_STATUS_FOR_TRACKER_ANALYTICS_ACTION",
+    status: RequestStatus
+}
+export const updateStatusForTrackerAnalyticsRequest = (status: RequestStatus.IN_FLIGHT | RequestStatus.NOT_IN_FLIGHT): UpdateStatusForTrackerAnalyticsAction => {
+    return {
+        type: "UPDATE_STATUS_FOR_TRACKER_ANALYTICS_ACTION",
+        status,
+    };
+};
+
+export type ReceiveTrackerAnalyticsAction = {
+    type: "RECEIVE_TRACKER_ANALYTICS_ACTION",
+    trackerAnalytics: TrackerAnalytics,
+}
+export const receiveTrackerAnalytics = (trackerAnalytics: TrackerAnalytics): ReceiveTrackerAnalyticsAction => {
+    return {
+        type: "RECEIVE_TRACKER_ANALYTICS_ACTION",
+        trackerAnalytics: trackerAnalytics
+    }
+};
+
 export type ApplicationAction =
     PollServerAction
     | ReceiveTimeSinceProductionDeployAction
     | RequestTimeSinceProductionDeployAction
     | UpdateStatusTimeSinceProductionDeployRequestAction
     | ReportAProductionDeployAction
+    | RequestTrackerAnalyticsAction
+    | UpdateStatusForTrackerAnalyticsAction
+    | ReceiveTrackerAnalyticsAction
     | ApplicationErrorAction;
