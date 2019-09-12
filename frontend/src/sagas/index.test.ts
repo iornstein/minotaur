@@ -22,7 +22,7 @@ import {runSaga} from "redux-saga";
 import {aNonNegativeInteger, aString} from "../utils/testGenerators/generatePrimitives.test";
 import {NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET, RequestStatus} from "../store/reducer";
 import {
-    someKnownTimeSinceProduction
+    someTimeSinceProduction
 } from "../utils/testGenerators/generateDomain.test";
 import {
     someNonNullTimeSinceProductionFromServer,
@@ -144,7 +144,7 @@ describe("sagas", function () {
 
                 expect(mockDispatcher).toHaveBeenCalledWith(updateStatusForTimeSinceProductionDeployRequest(RequestStatus.NOT_IN_FLIGHT));
                 const indexOfUpdateRequestStatus = dispatchCalls.findIndex(call => call[0].type === UPDATE_STATUS_FOR_TIME_SINCE_PRODUCTION_DEPLOY_REQUEST_ACTION);
-                const indexOfReceiveTimeSinceLastProductionDeploy = dispatchCalls.findIndex(call => call[0].type === receiveTimeSinceLastProductionDeploy(someKnownTimeSinceProduction()).type);
+                const indexOfReceiveTimeSinceLastProductionDeploy = dispatchCalls.findIndex(call => call[0].type === receiveTimeSinceLastProductionDeploy(someTimeSinceProduction()).type);
                 expect(indexOfReceiveTimeSinceLastProductionDeploy).toBeLessThan(indexOfUpdateRequestStatus);
             });
         });

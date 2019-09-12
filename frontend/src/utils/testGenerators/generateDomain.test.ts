@@ -1,9 +1,9 @@
 import {
     ApplicationState,
-    HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET,
-    NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET,
+    UNKNOWN_VALUE,
+    NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET, PossiblyUnknownValue,
     RequestStatus,
-    KnownTimeSinceProductionDeployType, KnownOrUnknownTimeSinceProductionDeployType, TrackerAnalytics
+    TimeSinceProductionDeploy, TrackerAnalytics
 } from "../../store/reducer";
 import {
     aNonNegativeInteger,
@@ -17,11 +17,7 @@ const requestStatuses = Object.keys(RequestStatus).map(value => (value as unknow
 
 export const aRequestStatus = () => randomChoiceFrom(requestStatuses);
 
-export const someKnownOrUnknownTimeSinceProduction: () => KnownOrUnknownTimeSinceProductionDeployType = () => {
-    return randomChoiceFrom([someKnownTimeSinceProduction(), HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET]);
-};
-
-export const someKnownTimeSinceProduction: () => KnownTimeSinceProductionDeployType = () => {
+export const someTimeSinceProduction: () => TimeSinceProductionDeploy = () => {
     return randomChoiceFrom([
         {days: aNonNegativeInteger(), hasBeenAtLeastADay: true},
         {hours: someHours(), hasBeenAtLeastADay: false},
@@ -30,15 +26,19 @@ export const someKnownTimeSinceProduction: () => KnownTimeSinceProductionDeployT
 
 export const aState = (): ApplicationState => {
     return {
-        timeSinceProduction: someKnownOrUnknownTimeSinceProduction(),
+        timeSinceProduction: knownOrUnknown(someTimeSinceProduction),
         timeSinceProductionRequestStatus: aRequestStatus(),
         trackerAnalyticsRequestStatus: aRequestStatus(),
-        trackerAnalytics: someTrackerAnalytics(),
+        trackerAnalytics: knownOrUnknown(someTrackerAnalytics),
     };
 };
 
 export const someHours = (): number => {
     return randomIntegerBetween(0, 24);
+};
+
+export const knownOrUnknown = <T>(valueProducer: () => T) : PossiblyUnknownValue<T> => {
+    return randomChoiceFrom([UNKNOWN_VALUE, valueProducer()]);
 };
 
 export const someTrackerAnalytics: () => TrackerAnalytics = () => {

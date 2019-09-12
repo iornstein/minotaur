@@ -2,7 +2,7 @@ import React from 'react';
 import {connect} from "react-redux";
 import {
     ApplicationState,
-    HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET,
+    UNKNOWN_VALUE,
     PossiblyUnknownValue,
     TrackerAnalytics
 } from "../store/reducer";
@@ -14,7 +14,7 @@ export type TrackerInfoProps = {
 export class TrackerInfo extends React.Component<TrackerInfoProps, {}> {
     render() {
         const analytics = this.props.analytics;
-        if (analytics === HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET) {
+        if (analytics === UNKNOWN_VALUE) {
             return <div>... data from tracker is not loaded yet</div>
         }
         return <div>

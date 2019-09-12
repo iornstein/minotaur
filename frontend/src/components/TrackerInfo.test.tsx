@@ -3,7 +3,7 @@ import React from 'react';
 import {shallow} from "enzyme";
 import {mapStateToProps, TrackerInfo} from "./TrackerInfo";
 import {aState, someTrackerAnalytics} from "../utils/testGenerators/generateDomain.test";
-import {HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET} from "../store/reducer";
+import {UNKNOWN_VALUE} from "../store/reducer";
 
 describe('TrackerInfo', function () {
     describe('component', function () {
@@ -19,7 +19,7 @@ describe('TrackerInfo', function () {
         });
 
         describe('when the data from tracker is NOT available', function () {
-            const subject = shallow(<TrackerInfo analytics={HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET}/>);
+            const subject = shallow(<TrackerInfo analytics={UNKNOWN_VALUE}/>);
 
             expect(subject.text()).toContain("... data from tracker is not loaded yet");
         });

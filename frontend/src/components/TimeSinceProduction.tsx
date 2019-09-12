@@ -1,25 +1,27 @@
 import React from 'react';
 import {
     ApplicationState,
-    HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET,
-    NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET, KnownOrUnknownTimeSinceProductionDeployType,
+    UNKNOWN_VALUE,
+    NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET,
+    TimeSinceProductionDeploy,
+    PossiblyUnknownValue,
 } from "../store/reducer";
 import {connect} from "react-redux";
 
 export type TimeSinceProductionProps = {
-    timeSinceProduction: KnownOrUnknownTimeSinceProductionDeployType
+    timeSinceProduction: PossiblyUnknownValue<TimeSinceProductionDeploy>
 };
 
 export class TimeSinceProduction extends React.Component<TimeSinceProductionProps, {}> {
 
     render() {
         const time = this.props.timeSinceProduction;
-        if (time === HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET) {
+        if (time === UNKNOWN_VALUE) {
             return <></>
         }
         if (time === NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET) {
-            return <div>
-                There has not yet been a deploy to production recorded
+            return <div className="time-since-production">
+                There has not yet been a deploy to production recorded.
             </div>
         }
 

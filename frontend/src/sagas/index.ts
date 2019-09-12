@@ -17,7 +17,7 @@ import {
     TimeSinceProductionDeployResponse
 } from "../clients/TimeSinceProductionDeployClient";
 import {
-    KnownTimeSinceProductionDeployType,
+    TimeSinceProductionDeploy,
     NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET,
     RequestStatus,
     TrackerAnalytics
@@ -25,7 +25,7 @@ import {
 import {AxiosResponse} from "axios";
 import {requestTrackerAnalytics, TrackerAnalyticsResponse} from "../clients/TrackerAnalyticsClient";
 
-const convertResponseToKnownTimeSinceProductionDomainObject = (time: TimeSinceProductionDeployResponse): KnownTimeSinceProductionDeployType => {
+const convertResponseToTimeSinceProductionDomainObject = (time: TimeSinceProductionDeployResponse): TimeSinceProductionDeploy => {
     if (time.days === null || time.hours === null) {
         return NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET;
     }
@@ -52,7 +52,7 @@ const convertResponseToTrackerAnalyticsDomainObject = (response: TrackerAnalytic
 export function* fetchTimeSinceProductionDeploy(ignored: ApplicationAction) {
     yield requestFromServerAndDispatchResponses(
         requestTimeSinceProductionDeploy,
-        convertResponseToKnownTimeSinceProductionDomainObject,
+        convertResponseToTimeSinceProductionDomainObject,
         receiveTimeSinceLastProductionDeploy,
         "fetchTimeSinceProductionDeploy",
         updateStatusForTimeSinceProductionDeployRequest

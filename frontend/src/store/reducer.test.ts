@@ -1,9 +1,9 @@
-import {ApplicationState, HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET, reducer, RequestStatus} from "./reducer";
+import {ApplicationState, UNKNOWN_VALUE, reducer, RequestStatus} from "./reducer";
 import {randomChoiceFrom} from "../utils/testGenerators/generatePrimitives.test";
 import {
     aRequestStatus,
     aState,
-    someKnownTimeSinceProduction,
+    someTimeSinceProduction,
     someTrackerAnalytics
 } from "../utils/testGenerators/generateDomain.test";
 import {
@@ -19,24 +19,24 @@ describe("reducer", function () {
     it('should default to the initial state', function () {
         const initialState = reducer(undefined, {type: REQUEST_TIME_SINCE_LAST_PRODUCTION_DEPLOY_ACTION_TYPE});
         const expectedState: ApplicationState = {
-            timeSinceProduction: HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET,
+            timeSinceProduction: UNKNOWN_VALUE,
             timeSinceProductionRequestStatus: RequestStatus.NOT_IN_FLIGHT,
             trackerAnalyticsRequestStatus: RequestStatus.NOT_IN_FLIGHT,
-            trackerAnalytics: HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET
+            trackerAnalytics: UNKNOWN_VALUE
         };
         expect(initialState).toEqual(expectedState)
     });
 
     describe("when receiving time since most recent production deploy", () => {
         it('should update the time since the last production deploy', function () {
-            const timeSinceProduction = someKnownTimeSinceProduction();
+            const timeSinceProduction = someTimeSinceProduction();
             const newState = reducer(aState(), receiveTimeSinceLastProductionDeploy(timeSinceProduction));
 
             expect(newState.timeSinceProduction).toEqual(timeSinceProduction);
         });
 
         it('should keep the rest of the state the same', function () {
-            const timeSinceProduction = someKnownTimeSinceProduction();
+            const timeSinceProduction = someTimeSinceProduction();
             const oldState: ApplicationState = {...aState(), timeSinceProduction};
             const newState = reducer(oldState, receiveTimeSinceLastProductionDeploy(timeSinceProduction));
             expect(newState).toEqual(oldState);

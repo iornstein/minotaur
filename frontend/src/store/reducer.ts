@@ -1,17 +1,13 @@
 import {ApplicationAction} from "./actions";
 
-export const HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET = "HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET";
+export const UNKNOWN_VALUE = "UNKNOWN VALUE";
 export const NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET = "NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET";
-export type KnownTimeSinceProductionDeployType =
+export type TimeSinceProductionDeploy =
     { days: number, hasBeenAtLeastADay: true }
     | { hours: number, hasBeenAtLeastADay: false }
     | typeof NO_PRODUCTION_DEPLOYS_HAVE_HAPPENED_YET;
 
-export type KnownOrUnknownTimeSinceProductionDeployType =
-    KnownTimeSinceProductionDeployType
-    | typeof HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET;
-
-export type PossiblyUnknownValue<T> = T | typeof HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET;
+export type PossiblyUnknownValue<T> = T | typeof UNKNOWN_VALUE;
 
 export type TrackerAnalytics = {
         projectName: string,
@@ -20,7 +16,7 @@ export type TrackerAnalytics = {
     };
 
 export type ApplicationState = {
-    timeSinceProduction: KnownOrUnknownTimeSinceProductionDeployType;
+    timeSinceProduction: PossiblyUnknownValue<TimeSinceProductionDeploy>;
     timeSinceProductionRequestStatus: RequestStatus;
     trackerAnalyticsRequestStatus: RequestStatus;
     trackerAnalytics: PossiblyUnknownValue<TrackerAnalytics>;
@@ -33,10 +29,10 @@ export enum RequestStatus {
 }
 
 const initialState: ApplicationState = {
-    timeSinceProduction: HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET,
+    timeSinceProduction: UNKNOWN_VALUE,
     timeSinceProductionRequestStatus: RequestStatus.NOT_IN_FLIGHT,
     trackerAnalyticsRequestStatus: RequestStatus.NOT_IN_FLIGHT,
-    trackerAnalytics: HAS_NOT_GOTTEN_RESPONSE_FROM_SERVER_YET,
+    trackerAnalytics: UNKNOWN_VALUE,
 };
 
 export const reducer = (state: ApplicationState = initialState, action: ApplicationAction): ApplicationState => {
