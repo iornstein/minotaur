@@ -1,5 +1,6 @@
 import React, {Dispatch} from 'react';
 import './App.css';
+import './reset.css';
 import TimeSinceProduction from "./components/TimeSinceProduction";
 import {every} from "./services/Timing";
 import {ApplicationAction, pollServer} from "./store/actions";
@@ -20,7 +21,7 @@ export class App extends React.Component<Props, {}> {
 
     render() {
         return (
-            <div className="minotaur">
+            <div className="content">
                 <TrackerAnalyticsPoller/>
                 <TimeSinceLastProductionDeployPoller/>
                 <TrackerAnalytics/>

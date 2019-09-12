@@ -23,8 +23,8 @@ export class TimeSinceProduction extends React.Component<TimeSinceProductionProp
             </div>
         }
 
-        return <div>
-            It has been <span className="time">{TimeSinceProduction.textFor(time)}</span> since your last production
+        return <div className="time-since-production">
+            It has been <span className="highlighted-value">{TimeSinceProduction.textFor(time)}</span> since your last production
             deploy.
         </div>
     }

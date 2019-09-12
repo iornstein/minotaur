@@ -18,9 +18,21 @@ export class TrackerInfo extends React.Component<TrackerInfoProps, {}> {
             return <div>... data from tracker is not loaded yet</div>
         }
         return <div>
-            <h2>{analytics.projectName}</h2>
-            <div>
-                <span>Velocity: {analytics.velocity}</span><span>Volatility: {analytics.volatility}%</span>
+            <h2 className="project-name">{analytics.projectName}</h2>
+            <div className="metrics">
+                <div className="metric-column">
+                    <div className="boxed-value">
+                        <div id="Velocity">{analytics.velocity}</div>
+                    </div>
+                    <label htmlFor="Velocity" className="boxed-label">Velocity</label>
+                </div>
+                <div className="metric-column">
+                    <div className="boxed-value">
+                        <div id="Volatility">{analytics.volatility}%</div>
+                    </div>
+                    <label htmlFor="Volatility" className="boxed-label">Volatility</label>
+                </div>
+
             </div>
         </div>
     }
