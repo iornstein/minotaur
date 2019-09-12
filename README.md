@@ -1,7 +1,8 @@
 # Minotaur
-Minotaur will display helpful information about your project! Right now the documented behavior is that it can
-display the days since you have last deployed since production. Hopefully this can remind you to keep that number
+Minotaur will display helpful information about your project! Right now the documented behavior is 
+- it displays the days since you have last deployed since production. Hopefully this can remind you to keep that number
 as low as possible `:)`.
+- it displays the tracker project name and current velocity and volatility. Admittedly, These are not incredibly helpful.
 
 ## configure the app
 This application needs to communicate to tracker. You will need to find your `projectId` and your `trackerToken`.
