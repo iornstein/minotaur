@@ -2,3 +2,5 @@ tracker:
   url: https://www.pivotaltracker.com/
   projectId: write your projectId here
   token: write your token here
+server:
+  port: 8525

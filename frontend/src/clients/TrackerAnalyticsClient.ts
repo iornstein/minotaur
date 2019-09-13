@@ -7,4 +7,4 @@ export type TrackerAnalyticsResponse = {
 }
 
 export const requestTrackerAnalytics: () => Promise<AxiosResponse<TrackerAnalyticsResponse>> = () =>
-    axios.get("http://localhost:8080/tracker/project");
+    axios.get("http://localhost:8525/tracker/project");

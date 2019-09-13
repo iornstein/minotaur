@@ -7,7 +7,7 @@ describe('requestTrackerAnalytics', function () {
     it('should return the tracker analytics', function () {
         const mock = new MockAdapter(axios);
         const expectedResponse = someTrackerAnalyticsResponse();
-        mock.onGet('http://localhost:8080/tracker/project').reply(200, expectedResponse);
+        mock.onGet('http://localhost:8525/tracker/project').reply(200, expectedResponse);
 
         requestTrackerAnalytics().then((response) => {
             expect(response.data).toEqual(expectedResponse);

@@ -11,7 +11,7 @@ describe('requestTimeSinceProductionDeploy', function () {
     it('should return the time since the last production deploy', function () {
         const mock = new MockAdapter(axios);
         const expectedResponse : TimeSinceProductionDeployResponse = someTimeSinceProductionFromServer();
-        mock.onGet('http://localhost:8080/timeSinceLastProductionDeploy').reply(200, expectedResponse);
+        mock.onGet('http://localhost:8525/timeSinceLastProductionDeploy').reply(200, expectedResponse);
 
         requestTimeSinceProductionDeploy().then((response) => {
             expect(response.data).toEqual(expectedResponse);
@@ -23,7 +23,7 @@ describe('notifyThatAProductionDeployHappened', function () {
     it('should send a put request to signify that a new production deploy occurred', function () {
         const mock = new MockAdapter(axios);
         const body = aString();
-        mock.onPut('http://localhost:8080/reportAProductionDeploy').reply(200, body);
+        mock.onPut('http://localhost:8525/reportAProductionDeploy').reply(200, body);
 
         notifyThatAProductionDeployHappened().then((response) => {
             expect(response.data).toEqual(body);
