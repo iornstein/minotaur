@@ -2,7 +2,8 @@
 Minotaur will display helpful information about your project! Right now the documented behavior is 
 - it displays the days since you have last deployed since production. Hopefully this can remind you to keep that number
 as low as possible `:)`.
-- it displays the tracker project name and current velocity and volatility. Admittedly, These are not incredibly helpful.
+- it displays the tracker project name and current velocity and volatility. Admittedly, These are not incredibly helpful. 
+One day this can display cooler stuff like project cyle time and more. If you have ideas on what you want to see here, please let me know.
 
 ## configure the app
 This application needs to communicate to tracker. You will need to find your `projectId` and your `trackerToken`.
@@ -16,3 +17,6 @@ Make sure you set both of those values in the indicated places within `backend/s
 ## how to run
 You can run this with [docker](https://docs.docker.com/docker-for-mac/install/). Simply run `docker-compose up --build`. 
 You can visit the front-end at `http:localhost:3000`
+
+## Used ports
+This uses localhost ports `3000` for the frontend and `8525` for the backend. If you needed to use those ports, I'm sorry.
